@@ -268,7 +268,7 @@ void salahandler(Gamestate *gamestate)
 					gamestate->player.y = gamestate->sala[SALA2].portaup.y + 10;
 				}
 		    }
-			break;//prupru
+			break;
 		case SALA2:
 			gamestate->sala[gamestate->salaatual].x = 0;
 		    gamestate->sala[gamestate->salaatual].y = 768;
