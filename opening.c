@@ -26,7 +26,7 @@ void opening(SDL_Window** window, SDL_Renderer**renderer)
 	
 
 
-		opacidade += 2;	
+		opacidade += 3;	
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);  
 	}
@@ -43,11 +43,51 @@ void opening(SDL_Window** window, SDL_Renderer**renderer)
 		SDL_SetTextureBlendMode(openingtex,SDL_BLENDMODE_BLEND);
 		SDL_SetTextureAlphaMod(openingtex,opacidade);
 		SDL_RenderCopy(*renderer, openingtex,NULL, 0);
-		SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
+		//SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
 		
 
 
-		opacidade -= 2;
+		opacidade -= 3;
+		SDL_RenderPresent(*renderer);
+		SDL_RenderClear(*renderer);  
+	}
+
+	while(opacidade < 255)
+	{
+		
+		
+
+		SDL_Texture *openingtex = IMG_LoadTexture(*renderer, "images/opening/logo.png");
+		SDL_SetTextureBlendMode(openingtex,SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(openingtex,opacidade);
+		SDL_RenderCopy(*renderer, openingtex,NULL, 0);
+		//SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
+
+	
+
+
+		opacidade += 3;	
+		SDL_RenderPresent(*renderer);
+		SDL_RenderClear(*renderer);  
+	}
+
+	SDL_Delay(1000);
+	opacidade = 255;
+
+	while(opacidade > 0)
+	{
+		
+		
+
+		SDL_Texture *openingtex = IMG_LoadTexture(*renderer, "images/opening/logo.png");
+		SDL_SetTextureBlendMode(openingtex,SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(openingtex,opacidade);
+		SDL_RenderCopy(*renderer, openingtex,NULL, 0);
+		SDL_SetRenderDrawColor(*renderer, 0, 0,0, 0);
+		
+
+
+		opacidade -= 3;
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);  
 	}

@@ -14,6 +14,43 @@ typedef enum _bulletdirection
 	RIGHTDOWN
 }DIRECTION;
 
+typedef struct liferegen
+{	
+	int on;
+	int x, y, w, h;
+	int amount;
+}Lifeplus;
+
+typedef struct morespeed
+{
+	int on;
+	int x, y, w, h;
+}Speedplus;
+
+typedef struct moredamage
+{
+	int on;
+	int x, y, w, h;
+}Damageplus;
+
+typedef struct armaonfloor1
+{
+	int on;
+	int x, y, w, h;
+}Armafloor1;
+
+typedef struct armaonfloor2
+{
+	int on;
+	int x, y, w, h;
+}Armafloor2;
+
+typedef struct armaonfloor3
+{
+	int on;
+	int x, y, w, h;
+}Armafloor3;
+
 typedef enum _salasnum
 {
 	SALA1,
@@ -29,15 +66,28 @@ typedef struct _porta
 	int x, y, w, h;
 }Porta;
 
+typedef struct _wave
+{
+	int enemyeasytospawn;
+	int enemymediumtospawn;
+	int enemyhardtospawn;
+	int enemybosstospawn;
+	int enemyeasy;
+	int enemymedium;
+	int enemyhard;
+	int enemyboss;
+	int enemyeasyleft;
+	int enemymediumleft;
+	int enemyhardleft;
+	int enemybossleft;
+}Wave;
+
 typedef struct _salasstruct
 {
 	int x,y,w,h;
-	int enemytype1;
-	int enemytype2;
-	int enemytype3;
-	int enemytypeboss;
-	int wave;
-	int clear;
+	int waveatual;
+	int clear; 	
+	Wave wave[3];
 	Porta portaup;
 	Porta portaright;
 	Porta portaleft;
@@ -54,6 +104,8 @@ typedef struct _player
 	int speed;
 	int up,down,left,right;
 	double angulo;
+	int arma;
+	int damageplus;
 } Player;
 
 typedef struct _parede
@@ -64,10 +116,26 @@ typedef struct _parede
 typedef struct _textures
 {
 	SDL_Texture *backgroundtex;
-	SDL_Texture *playertex;
+	SDL_Texture *playerw1tex;
+	SDL_Texture	*playerw2tex;
+	SDL_Texture	*playerw3tex;
 	SDL_Texture *mousetex;
 	SDL_Texture *bullettex;
 	SDL_Texture *enemytex;
+	SDL_Texture *enemybosstex;
+	SDL_Texture *enemymediumtex;
+	SDL_Texture *portauptex;
+	SDL_Texture *portadowntex;
+	SDL_Texture *portalefttex;
+	SDL_Texture *portarighttex;
+	SDL_Texture *pausetex;
+	SDL_Texture *lifeplustex;
+	SDL_Texture *speedplustex ;
+	SDL_Texture *damageplustex ;
+	SDL_Texture *arma1tex ;
+	SDL_Texture *arma2tex ;
+	SDL_Texture *arma3tex ;
+
 }Texture;
 
 typedef struct _bullet
@@ -91,6 +159,7 @@ typedef struct _enemy
 	int life;
 	int speed;
 	int move;
+	int angulo;
 }Enemy;
 
 typedef struct _gamestate
@@ -108,6 +177,10 @@ typedef struct _gamestate
 	int rob;
 	Sala sala[6];
 	SALAS salaatual;
+	int pause;
+	int musicmute;
+	int soundmute;
+	int victory;
 	
 }Gamestate;
 

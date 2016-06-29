@@ -35,6 +35,7 @@ int main(int argc, char const *argv[])
 	
 
 	APPSTATE state = OPENING;
+	srand(time(0));
 	
 
 	Gamestate gamestate;
@@ -43,6 +44,7 @@ int main(int argc, char const *argv[])
 
 
 	int go = 1;
+	int pause = 0;
 
 
 	initwindow(&window,&renderer);
@@ -67,9 +69,10 @@ int main(int argc, char const *argv[])
 				case MENU:
 				{
 					int decide = 0;
+					menu(&window,&renderer);
 					while(decide == 0)
 					{
-						menu(&window,&renderer);
+						
 						decide = recebeImput(&event,&gamestate,&state);
 					}
 					break;
@@ -126,12 +129,15 @@ int main(int argc, char const *argv[])
 							
 						}
 
+						if (gamestate.pause == 0)
+						{				
+
+							logica(&gamestate);	
+						}
+						
 						salahandler(&gamestate);
-
-						logica(&gamestate);
-
 						desenha(renderer,&gamestate,&texture);
-						printf("life: %d\n",gamestate.player.life);
+							
 
 						
 						if(gamestate.player.life <= 0)
@@ -140,9 +146,22 @@ int main(int argc, char const *argv[])
 							running = 0;
 						}
 
+						if(gamestate.victory == 1)
+						{
+							state = GAMEOVERWIN;
+							running = 0;
+							puts("yeah");
+						}
+						else;
+							
+						//printf("estado: %d\n",gamestate.sala[BOSS].clear );
+
 						fim = SDL_GetTicks();
 
-						SDL_Delay(1000/60-(fim-inicio));
+						if (fim - inicio < 1000/60)
+							SDL_Delay(1000/60-(fim-inicio));
+
+						
 
 					}
 					break;
@@ -197,6 +216,7 @@ int main(int argc, char const *argv[])
 
 void salahandler(Gamestate *gamestate)
 {
+	int i;
 	SDL_Rect playerRect = {	gamestate->player.x,gamestate->player.y,
 							gamestate->player.w,gamestate->player.h};
 
@@ -253,19 +273,68 @@ void salahandler(Gamestate *gamestate)
 		    gamestate->sala[gamestate->salaatual].y = 0;
 		    gamestate->sala[gamestate->salaatual].w = 1366;
 		    gamestate->sala[gamestate->salaatual].h = 768;
+		   // gamestate->sala[gamestate->salaatual].waveatual = 3;
 		    if(gamestate->sala[gamestate->salaatual].clear == 1)
 		    {
 		    	if(!((PX<Prx) || (PrX<Px) || (PY < Pry) || (PrY < Py)))
 				{
 					gamestate->salaatual = SALA3;
-					gamestate->player.x = gamestate->sala[SALA3].portaleft.x + 10;
-					gamestate->player.y = gamestate->sala[SALA3].portaleft.y ;
+					gamestate->player.x = gamestate->sala[SALA3].portaleft.w - gamestate->sala[SALA4].portaleft.x;
+					gamestate->player.y = gamestate->sala[SALA3].portaleft.y + 50 + 1;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 				}
 				if(!((PX<Pdx) || (PdX<Px) || (PY < Pdy) || (PdY < Py)))
 				{
 					gamestate->salaatual = SALA2;
 					gamestate->player.x = gamestate->sala[SALA2].portaup.x + 50;
-					gamestate->player.y = gamestate->sala[SALA2].portaup.y + 10;
+					gamestate->player.y = gamestate->sala[SALA2].portaup.y + 100;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 				}
 		    }
 			break;//prupru
@@ -274,19 +343,72 @@ void salahandler(Gamestate *gamestate)
 		    gamestate->sala[gamestate->salaatual].y = 768;
 		    gamestate->sala[gamestate->salaatual].w = 1366;
 		    gamestate->sala[gamestate->salaatual].h = 768;
+		   // gamestate->sala[gamestate->salaatual].waveatual = 3;
+		    gamestate->sala[SALA1].portadown.x = 470;
+			    gamestate->sala[SALA1].portadown.y = 669;
+			    gamestate->sala[SALA1].portadown.w = 356;
+			    gamestate->sala[SALA1].portadown.h = 100;
 		    if(gamestate->sala[gamestate->salaatual].clear == 1)
 		    {
 		    	if(!((PX<Prx) || (PrX<Px) || (PY < Pry) || (PrY < Py)))
 				{
 					gamestate->salaatual = SALA4;
-					gamestate->player.x = gamestate->sala[SALA4].portaleft.x + 10;
+					gamestate->player.x = gamestate->sala[SALA4].portaleft.w - gamestate->sala[SALA4].portaleft.x;
 					gamestate->player.y = gamestate->sala[SALA4].portaleft.y ;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 				}
 				if(!((PX<Pux) || (PuX<Px) || (PY < Puy) || (PuY < Py)))
 				{
 					gamestate->salaatual = SALA1;
 					gamestate->player.x = gamestate->sala[SALA1].portadown.x + 50;
 					gamestate->player.y = gamestate->sala[SALA1].portadown.y - gamestate->player.h - 10;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 				}
 		    }
 		    break;
@@ -295,25 +417,99 @@ void salahandler(Gamestate *gamestate)
 		    gamestate->sala[gamestate->salaatual].y = 0;
 		    gamestate->sala[gamestate->salaatual].w = 1366;
 		    gamestate->sala[gamestate->salaatual].h = 768;
+		    
+		   // gamestate->sala[gamestate->salaatual].waveatual = 3;
 		    if(gamestate->sala[gamestate->salaatual].clear == 1)
 		    {
 		    	if(!((PX<Prx) || (PrX<Px) || (PY < Pry) || (PrY < Py)))
 				{
 					gamestate->salaatual = BOSS;
-					gamestate->player.x = gamestate->sala[BOSS].portaleft.x + 10;
-					gamestate->player.y = gamestate->sala[BOSS].portaleft.y ;
+					gamestate->player.x = gamestate->sala[BONUS].portaleft.x + 100;
+					gamestate->player.y = gamestate->sala[BONUS].portaleft.y ;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 				}
 				if(!((PX<Pdx) || (PdX<Px) || (PY < Pdy) || (PdY < Py)))
 				{
 					gamestate->salaatual = SALA4;
 					gamestate->player.x = gamestate->sala[SALA4].portaup.x + 50;
-					gamestate->player.y = gamestate->sala[SALA4].portaup.y + 10;
+					gamestate->player.y = gamestate->sala[SALA4].portaup.y + 100;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 				}
 				if(!((PX<Plx) || (PlX<Px) || (PY < Ply) || (PlY < Py)))
 				{
 					gamestate->salaatual = SALA1;
 					gamestate->player.x = gamestate->sala[SALA1].portaright.x - gamestate->player.w - 10;
-					gamestate->player.y = gamestate->sala[SALA1].portaright.y ;
+					gamestate->player.y = gamestate->sala[SALA1].portaright.y + gamestate->sala[SALA1].portaright.h/2;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 				}
 		    }
 		    break;
@@ -322,25 +518,110 @@ void salahandler(Gamestate *gamestate)
 		    gamestate->sala[gamestate->salaatual].y = 768;
 		    gamestate->sala[gamestate->salaatual].w = 1366;
 		    gamestate->sala[gamestate->salaatual].h = 768;
+		    gamestate->sala[SALA3].portaleft.x = 0;
+			gamestate->sala[SALA3].portaleft.y = 255;
+			gamestate->sala[SALA3].portaleft.w = 100;
+			gamestate->sala[SALA3].portaleft.h = 250;
+			gamestate->sala[SALA3].portadown.x = 460;
+			gamestate->sala[SALA3].portadown.y = 669;
+			gamestate->sala[SALA3].portadown.w = 360;
+			gamestate->sala[SALA3].portadown.h = 100;
+			gamestate->sala[SALA3].portaleft.x = -2;
+			gamestate->sala[SALA3].portaleft.y = 255;
+			gamestate->sala[SALA3].portaleft.w = 100;
+			    gamestate->sala[SALA3].portaleft.h = 252;
+		   // gamestate->sala[gamestate->salaatual].waveatual = 3;
 		    if(gamestate->sala[gamestate->salaatual].clear == 1)
 		    {
 		    	if(!((PX<Prx) || (PrX<Px) || (PY < Pry) || (PrY < Py)))
 				{
 					gamestate->salaatual = BONUS;
-					gamestate->player.x = gamestate->sala[BONUS].portaleft.x + 10;
+					gamestate->player.x = gamestate->sala[BONUS].portaleft.x + 100;
 					gamestate->player.y = gamestate->sala[BONUS].portaleft.y ;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 				}
 				if(!((PX<Pux) || (PuX<Px) || (PY < Puy) || (PuY < Py)))
 				{
 					gamestate->salaatual = SALA3;
 					gamestate->player.x = gamestate->sala[SALA3].portadown.x + 50;
-					gamestate->player.y = gamestate->sala[SALA3].portadown.y  - gamestate->player.h - 10;
+					gamestate->player.y = gamestate->sala[SALA3].portadown.y  - gamestate->player.h - 10 - 1;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 				}
 				if(!((PX<Plx) || (PlX<Px) || (PY < Ply) || (PlY < Py)))
 				{
 					gamestate->salaatual = SALA2;
 					gamestate->player.x = gamestate->sala[SALA2].portaright.x - gamestate->player.w - 10;
 					gamestate->player.y = gamestate->sala[SALA2].portaright.y ;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 				}
 		    }
 		    break;
@@ -349,17 +630,44 @@ void salahandler(Gamestate *gamestate)
 		    gamestate->sala[gamestate->salaatual].y = 0;
 		    gamestate->sala[gamestate->salaatual].w = 1366;
 		    gamestate->sala[gamestate->salaatual].h = 768;
+		   // gamestate->sala[gamestate->salaatual].waveatual = 3;
+		    
 		    break;
 		case BONUS:
 			gamestate->sala[gamestate->salaatual].x = 1366*2;
 		    gamestate->sala[gamestate->salaatual].y = 768;
 		    gamestate->sala[gamestate->salaatual].w = 1366;
 		    gamestate->sala[gamestate->salaatual].h = 768;
+		   // gamestate->sala[gamestate->salaatual].waveatual = 3;
 		    if(!((PX<Plx) || (PlX<Px) || (PY < Ply) || (PlY < Py)))
 			{
 				gamestate->salaatual = SALA4;
 				gamestate->player.x = gamestate->sala[SALA4].portaright.x - gamestate->player.w - 10;
 				gamestate->player.y = gamestate->sala[SALA4].portaright.y ;
+				gamestate->rob = 60;
+				for(i = 0; i < MAXENEMIES; i++)
+				   		enemy[i].on = 0;
+
+				   	for(i = 0; i < MAXENEMIES; i++)
+				   		enemymedium[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		lifeplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		speedplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		damageplus[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma1[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma2[i].on = 0;
+
+				   	for(i = 0; i < MAXPOWERUP; i++)
+				   		arma3[i].on = 0;
 			}
 		    break;
 	}
@@ -370,6 +678,8 @@ void init(Gamestate *gamestate)
 
 	gamestate->ScreenW = 1366;
 	gamestate->ScreenH = 768;	
+	gamestate->pause = 0;
+	gamestate->victory = 0;
 
 
     gamestate->parede.x = 100 ;
@@ -377,22 +687,26 @@ void init(Gamestate *gamestate)
     gamestate->parede.h = gamestate->ScreenH-200;
     gamestate->parede.w = gamestate->ScreenW-200;
 
-    gamestate->player.w = 80;
-    gamestate->player.h = 85;
-    gamestate->player.x = 101;
-    gamestate->player.y = 101;
+    gamestate->player.w = 86;
+    gamestate->player.h = 100;
+    gamestate->player.x = gamestate->ScreenW/2 - gamestate->player.w/2 ;
+    gamestate->player.y = gamestate->ScreenH/2 - gamestate->player.h/2 ;
     gamestate->player.life = 300;
     gamestate->player.score = 0;
-    gamestate->player.speed = 5;
+    gamestate->player.speed = 4;
     gamestate->playerup = 0;
     gamestate->playerdown = 0;
     gamestate->playerleft = 0;
     gamestate->playerright = 0;
+    gamestate->player.arma = 1;
+    gamestate->player.damageplus = 0;
 
     gamestate->player.down = 0;
 	gamestate->player.up = 0;
 	gamestate->player.left = 0;
 	gamestate->player.right = 0;
+
+	int i;
 
 	for(gamestate->salaatual = SALA1; gamestate->salaatual <= BONUS; gamestate->salaatual++)
 		switch(gamestate->salaatual)
@@ -402,44 +716,78 @@ void init(Gamestate *gamestate)
 			    gamestate->sala[gamestate->salaatual].y = 0;
 			    gamestate->sala[gamestate->salaatual].w = 1366;
 			    gamestate->sala[gamestate->salaatual].h = 768;
-			    gamestate->sala[gamestate->salaatual].enemytype1 = 8;
-			    gamestate->sala[gamestate->salaatual].enemytype2 = 0;
-			    gamestate->sala[gamestate->salaatual].enemytype3 = 0;
-			    gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
-			    gamestate->sala[gamestate->salaatual].wave = 2;
-			    gamestate->sala[gamestate->salaatual].clear = 1;
+			    gamestate->sala[gamestate->salaatual].waveatual = 2;
+			    //gamestate->sala[gamestate->salaatual].enemytype1 = 8;
+			    //gamestate->sala[gamestate->salaatual].enemytype2 = 0;
+			    //gamestate->sala[gamestate->salaatual].enemytype3 = 0;
+			    //gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
+			    //gamestate->sala[gamestate->salaatual].waveatual = 3;
+			    //gamestate->sala[gamestate->salaatual].clear = 0;
+			    for(i = 0; i < 3; i++)
+			    {
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasytospawn = 5;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumtospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardtospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybosstospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasy = 5;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymedium = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhard = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyboss = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasyleft = 5;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumleft = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardleft = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybossleft = 0;
+			    	gamestate->sala[gamestate->salaatual].clear = 0;
+			    }
 			    gamestate->sala[gamestate->salaatual].portaup.x = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.w = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.h = 0;
-			    gamestate->sala[gamestate->salaatual].portadown.x = (1366/2 - 50);
-			    gamestate->sala[gamestate->salaatual].portadown.y = (768-100);
-			    gamestate->sala[gamestate->salaatual].portadown.w = 100;
-			    gamestate->sala[gamestate->salaatual].portadown.h = 10;
+			    gamestate->sala[gamestate->salaatual].portadown.x = 470;
+			    gamestate->sala[gamestate->salaatual].portadown.y = 669;
+			    gamestate->sala[gamestate->salaatual].portadown.w = 356;
+			    gamestate->sala[gamestate->salaatual].portadown.h = 100;
 			    gamestate->sala[gamestate->salaatual].portaleft.x = 0;
 			    gamestate->sala[gamestate->salaatual].portaleft.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaleft.w = 0;
 			    gamestate->sala[gamestate->salaatual].portaleft.h = 0;
-			    gamestate->sala[gamestate->salaatual].portaright.x = 1366-100;
-			    gamestate->sala[gamestate->salaatual].portaright.y = 768/2 - 50;
-			    gamestate->sala[gamestate->salaatual].portaright.w = 10;
-			    gamestate->sala[gamestate->salaatual].portaright.h = 100;
+			    gamestate->sala[gamestate->salaatual].portaright.x = 1266;
+			    gamestate->sala[gamestate->salaatual].portaright.y = 255;
+			    gamestate->sala[gamestate->salaatual].portaright.w = 100;
+			    gamestate->sala[gamestate->salaatual].portaright.h = 250;
 			    break;
 			case SALA2:
 				gamestate->sala[gamestate->salaatual].x = 0;
 			    gamestate->sala[gamestate->salaatual].y = 768;
 			    gamestate->sala[gamestate->salaatual].w = 1366;
 			    gamestate->sala[gamestate->salaatual].h = 768;
-			    gamestate->sala[gamestate->salaatual].enemytype1 = 6;
-			    gamestate->sala[gamestate->salaatual].enemytype2 = 3;
-			    gamestate->sala[gamestate->salaatual].enemytype3 = 1;
-			    gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
-			    gamestate->sala[gamestate->salaatual].wave = 2;
-			    gamestate->sala[gamestate->salaatual].clear = 1;
-			    gamestate->sala[gamestate->salaatual].portaup.x = 1366/2 - 50;
-			    gamestate->sala[gamestate->salaatual].portaup.y = 100;
-			    gamestate->sala[gamestate->salaatual].portaup.w = 100;
-			    gamestate->sala[gamestate->salaatual].portaup.h = 10;
+			    gamestate->sala[gamestate->salaatual].waveatual = 2;
+			    //gamestate->sala[gamestate->salaatual].enemytype1 = 6;
+			    //gamestate->sala[gamestate->salaatual].enemytype2 = 3;
+			    //gamestate->sala[gamestate->salaatual].enemytype3 = 1;
+			    //gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
+			    //gamestate->sala[gamestate->salaatual].wave = 2;
+			    //gamestate->sala[gamestate->salaatual].clear = 1;
+			    for(i = 0; i < 3; i++)
+			    {
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasytospawn = 4;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumtospawn = 2;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardtospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybosstospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasy = 4;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymedium = 2;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhard = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyboss = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasyleft = 4;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumleft = 2;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardleft = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybossleft = 0;
+			    	gamestate->sala[gamestate->salaatual].clear = 0;
+			    }
+			    gamestate->sala[gamestate->salaatual].portaup.x = 470;
+			    gamestate->sala[gamestate->salaatual].portaup.y = 0;
+			    gamestate->sala[gamestate->salaatual].portaup.w = 356;
+			    gamestate->sala[gamestate->salaatual].portaup.h = 100;
 			    gamestate->sala[gamestate->salaatual].portadown.x = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.y = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.w = 0;
@@ -448,78 +796,129 @@ void init(Gamestate *gamestate)
 			    gamestate->sala[gamestate->salaatual].portaleft.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaleft.w = 0;
 			    gamestate->sala[gamestate->salaatual].portaleft.h = 0;
-			    gamestate->sala[gamestate->salaatual].portaright.x = 1366-100;
-			    gamestate->sala[gamestate->salaatual].portaright.y = 768/2 - 50;
-			    gamestate->sala[gamestate->salaatual].portaright.w = 10;
-			    gamestate->sala[gamestate->salaatual].portaright.h = 100;
+			    gamestate->sala[gamestate->salaatual].portaright.x = 1266;
+			    gamestate->sala[gamestate->salaatual].portaright.y = 255;
+			    gamestate->sala[gamestate->salaatual].portaright.w = 100;
+			    gamestate->sala[gamestate->salaatual].portaright.h = 250;
 			    break;
 			case SALA3:
 				gamestate->sala[gamestate->salaatual].x = 1366;
 			    gamestate->sala[gamestate->salaatual].y = 0;
 			    gamestate->sala[gamestate->salaatual].w = 1366;
 			    gamestate->sala[gamestate->salaatual].h = 768;
-			    gamestate->sala[gamestate->salaatual].enemytype1 = 7;
-			    gamestate->sala[gamestate->salaatual].enemytype2 = 3;
-			    gamestate->sala[gamestate->salaatual].enemytype3 = 2;
-			    gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
-			    gamestate->sala[gamestate->salaatual].wave = 3;
-			    gamestate->sala[gamestate->salaatual].clear = 1;
+			    gamestate->sala[gamestate->salaatual].waveatual = 2;
+			    //gamestate->sala[gamestate->salaatual].enemytype1 = 7;
+			    //gamestate->sala[gamestate->salaatual].enemytype2 = 3;
+			    //gamestate->sala[gamestate->salaatual].enemytype3 = 2;
+			   // gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
+			    //gamestate->sala[gamestate->salaatual].wave = 3;
+			    //gamestate->sala[gamestate->salaatual].clear = 1;
+			    for(i = 0; i < 3; i++)
+			    {
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasytospawn = 7;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumtospawn = 3;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardtospawn = 1;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybosstospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasy = 7;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymedium = 3;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhard = 1;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyboss = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasyleft = 7;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumleft = 3;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardleft = 1;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybossleft = 0;
+			    	gamestate->sala[gamestate->salaatual].clear = 0;
+			    }
 			    gamestate->sala[gamestate->salaatual].portaup.x = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.w = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.h = 0;
-			    gamestate->sala[gamestate->salaatual].portadown.x = (1366/2 - 50);
-			    gamestate->sala[gamestate->salaatual].portadown.y = (768-100);
-			    gamestate->sala[gamestate->salaatual].portadown.w = 100;
-			    gamestate->sala[gamestate->salaatual].portadown.h = 10;
-			    gamestate->sala[gamestate->salaatual].portaleft.x = 100;
-			    gamestate->sala[gamestate->salaatual].portaleft.y = (768/2 - 50);
-			    gamestate->sala[gamestate->salaatual].portaleft.w = 10;
-			    gamestate->sala[gamestate->salaatual].portaleft.h = 100;
-			    gamestate->sala[gamestate->salaatual].portaright.x = 1366-100;
-			    gamestate->sala[gamestate->salaatual].portaright.y = 768/2 - 50;
-			    gamestate->sala[gamestate->salaatual].portaright.w = 10;
-			    gamestate->sala[gamestate->salaatual].portaright.h = 100;
+			    gamestate->sala[gamestate->salaatual].portadown.x = 460;
+			    gamestate->sala[gamestate->salaatual].portadown.y = 669;
+			    gamestate->sala[gamestate->salaatual].portadown.w = 360;
+			    gamestate->sala[gamestate->salaatual].portadown.h = 100;
+			    gamestate->sala[gamestate->salaatual].portaleft.x = -2;
+			    gamestate->sala[gamestate->salaatual].portaleft.y = 255;
+			    gamestate->sala[gamestate->salaatual].portaleft.w = 100;
+			    gamestate->sala[gamestate->salaatual].portaleft.h = 252;
+			    gamestate->sala[gamestate->salaatual].portaright.x = 1266;
+			    gamestate->sala[gamestate->salaatual].portaright.y = 250;
+			    gamestate->sala[gamestate->salaatual].portaright.w = 100;
+			    gamestate->sala[gamestate->salaatual].portaright.h = 260;
 			    break;
 			case SALA4:
 				gamestate->sala[gamestate->salaatual].x = 1366;
 			    gamestate->sala[gamestate->salaatual].y = 768;
 			    gamestate->sala[gamestate->salaatual].w = 1366;
 			    gamestate->sala[gamestate->salaatual].h = 768;
-			    gamestate->sala[gamestate->salaatual].enemytype1 = 7;
-			    gamestate->sala[gamestate->salaatual].enemytype2 = 4;
-			    gamestate->sala[gamestate->salaatual].enemytype3 = 3;
-			    gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
-			    gamestate->sala[gamestate->salaatual].wave = 3;
-			    gamestate->sala[gamestate->salaatual].clear = 1;
-			    gamestate->sala[gamestate->salaatual].portaup.x = 1366/2 - 50;
-			    gamestate->sala[gamestate->salaatual].portaup.y = 100;
-			    gamestate->sala[gamestate->salaatual].portaup.w = 100;
-			    gamestate->sala[gamestate->salaatual].portaup.h = 10;
+			    gamestate->sala[gamestate->salaatual].waveatual = 2;
+			   // gamestate->sala[gamestate->salaatual].enemytype1 = 7;
+			   // gamestate->sala[gamestate->salaatual].enemytype2 = 4;
+			   // gamestate->sala[gamestate->salaatual].enemytype3 = 3;
+			   // gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
+			   // gamestate->sala[gamestate->salaatual].wave = 3;
+			   // gamestate->sala[gamestate->salaatual].clear = 1;
+			    for(i = 0; i < 3; i++)
+			    {
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasytospawn = 4;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumtospawn = 5;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardtospawn = 10;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybosstospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasy = 4;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymedium = 5;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhard = 10;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyboss = 0;
+			    	gamestate->sala[gamestate->salaatual].clear = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasyleft = 4;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumleft = 5;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardleft = 10;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybossleft = 0;
+			    }
+			    gamestate->sala[gamestate->salaatual].portaup.x = 1366/2 - 370/2;
+			    gamestate->sala[gamestate->salaatual].portaup.y = 0;
+			    gamestate->sala[gamestate->salaatual].portaup.w = 370;
+			    gamestate->sala[gamestate->salaatual].portaup.h = 100;
 			    gamestate->sala[gamestate->salaatual].portadown.x = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.y = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.w = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.h = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.x = 100;
-			    gamestate->sala[gamestate->salaatual].portaleft.y = (768/2 - 50);
-			    gamestate->sala[gamestate->salaatual].portaleft.w = 10;
-			    gamestate->sala[gamestate->salaatual].portaleft.h = 100;
-			    gamestate->sala[gamestate->salaatual].portaright.x = 1366-100;
-			    gamestate->sala[gamestate->salaatual].portaright.y = 768/2 - 50;
-			    gamestate->sala[gamestate->salaatual].portaright.w = 10;
-			    gamestate->sala[gamestate->salaatual].portaright.h = 100;
+			    gamestate->sala[gamestate->salaatual].portaleft.x = 0;
+			    gamestate->sala[gamestate->salaatual].portaleft.y = 261;
+			    gamestate->sala[gamestate->salaatual].portaleft.w = 100;
+			    gamestate->sala[gamestate->salaatual].portaleft.h = 240;
+			    gamestate->sala[gamestate->salaatual].portaright.x = 1266;
+			    gamestate->sala[gamestate->salaatual].portaright.y = 255;
+			    gamestate->sala[gamestate->salaatual].portaright.w = 100;
+			    gamestate->sala[gamestate->salaatual].portaright.h = 250;
 			    break;
 			case BOSS:
 				gamestate->sala[gamestate->salaatual].x = 1366*2;
 			    gamestate->sala[gamestate->salaatual].y = 0;
 			    gamestate->sala[gamestate->salaatual].w = 1366;
 			    gamestate->sala[gamestate->salaatual].h = 768;
-			    gamestate->sala[gamestate->salaatual].enemytype1 = 0;
-			    gamestate->sala[gamestate->salaatual].enemytype2 = 0;
-			    gamestate->sala[gamestate->salaatual].enemytype3 = 0;
-			    gamestate->sala[gamestate->salaatual].enemytypeboss = 1;
-			    gamestate->sala[gamestate->salaatual].wave = 1;
+			    gamestate->sala[gamestate->salaatual].waveatual = 0;
+			    //gamestate->sala[gamestate->salaatual].enemytype1 = 0;
+			    //gamestate->sala[gamestate->salaatual].enemytype2 = 0;
+			    //gamestate->sala[gamestate->salaatual].enemytype3 = 0;
+			    //gamestate->sala[gamestate->salaatual].enemytypeboss = 1;
+			    //gamestate->sala[gamestate->salaatual].wave = 1;
 			    gamestate->sala[gamestate->salaatual].clear = 0;
+			    for(i = 0; i < 3; i++)
+			    {
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasytospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumtospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardtospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybosstospawn = 1;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasy = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymedium = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhard = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyboss = 1;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasyleft = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumleft = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardleft = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybossleft = 1;
+			    	gamestate->sala[gamestate->salaatual].clear = 0;
+			    }
 			    gamestate->sala[gamestate->salaatual].portaup.x = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.w = 0;
@@ -528,10 +927,10 @@ void init(Gamestate *gamestate)
 			    gamestate->sala[gamestate->salaatual].portadown.y = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.w = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.h = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.x = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.y = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.w = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.h = 0;
+				gamestate->sala[gamestate->salaatual].portaleft.x = 0;
+			    gamestate->sala[gamestate->salaatual].portaleft.y = 261;
+			    gamestate->sala[gamestate->salaatual].portaleft.w = 100;
+			    gamestate->sala[gamestate->salaatual].portaleft.h = 240;
 			    gamestate->sala[gamestate->salaatual].portaright.x = 0;
 			    gamestate->sala[gamestate->salaatual].portaright.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaright.w = 0;
@@ -542,12 +941,29 @@ void init(Gamestate *gamestate)
 			    gamestate->sala[gamestate->salaatual].y = 768;
 			    gamestate->sala[gamestate->salaatual].w = 1366;
 			    gamestate->sala[gamestate->salaatual].h = 768;
-			    gamestate->sala[gamestate->salaatual].enemytype1 = 0;
-			    gamestate->sala[gamestate->salaatual].enemytype2 = 0;
-			    gamestate->sala[gamestate->salaatual].enemytype3 = 0;
-			    gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
-			    gamestate->sala[gamestate->salaatual].wave = 0;
-			    gamestate->sala[gamestate->salaatual].clear = 1;
+			    gamestate->sala[gamestate->salaatual].waveatual = 2;
+			    //gamestate->sala[gamestate->salaatual].enemytype1 = 0;
+			    //gamestate->sala[gamestate->salaatual].enemytype2 = 0;
+			    //gamestate->sala[gamestate->salaatual].enemytype3 = 0;
+			    //gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
+			    //gamestate->sala[gamestate->salaatual].wave = 0;
+			    //gamestate->sala[gamestate->salaatual].clear = 1;
+			    for(i = 0; i < 3; i++)
+			    {
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasytospawn = 20;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumtospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardtospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybosstospawn = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasy = 20;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymedium = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhard = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyboss = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasyleft = 20;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumleft = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardleft = 0;
+			    	gamestate->sala[gamestate->salaatual].wave[i].enemybossleft = 0;
+			    	gamestate->sala[gamestate->salaatual].clear = 0;
+			    }
 			    gamestate->sala[gamestate->salaatual].portaup.x = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.w = 0;
@@ -556,10 +972,10 @@ void init(Gamestate *gamestate)
 			    gamestate->sala[gamestate->salaatual].portadown.y = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.w = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.h = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.x = 100;
-			    gamestate->sala[gamestate->salaatual].portaleft.y = (768/2 - 50);
-			    gamestate->sala[gamestate->salaatual].portaleft.w = 10;
-			    gamestate->sala[gamestate->salaatual].portaleft.h = 100;
+			    gamestate->sala[gamestate->salaatual].portaleft.x = 0;
+			    gamestate->sala[gamestate->salaatual].portaleft.y = 261;
+			    gamestate->sala[gamestate->salaatual].portaleft.w = 100;
+			    gamestate->sala[gamestate->salaatual].portaleft.h = 240;
 			    gamestate->sala[gamestate->salaatual].portaright.x = 0;
 			    gamestate->sala[gamestate->salaatual].portaright.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaright.w = 0;
@@ -574,13 +990,41 @@ void init(Gamestate *gamestate)
     gamestate->player.angulo = 0;
 
     gamestate->rof = 0;
+	gamestate->rob = 60;
+
 
     gamestate->mousex = 600;
     gamestate->mousey = 600;
 
-    int i;
+    
     for(i = 0; i < MAXENEMIES; i++)
    		enemy[i].on = 0;
+
+   	for(i = 0; i < MAXENEMIES; i++)
+   		enemymedium[i].on = 0;
+
+   	for(i = 0; i < MAXENEMIES; i++)
+   		enemyboss[i].on = 0;
+
+   	for(i = 0; i < MAXPOWERUP; i++)
+   		lifeplus[i].on = 0;
+
+   	for(i = 0; i < MAXPOWERUP; i++)
+   		speedplus[i].on = 0;
+
+   	for(i = 0; i < MAXPOWERUP; i++)
+   		damageplus[i].on = 0;
+
+   	for(i = 0; i < MAXPOWERUP; i++)
+   		arma1[i].on = 0;
+
+   	for(i = 0; i < MAXPOWERUP; i++)
+   		arma2[i].on = 0;
+
+   	for(i = 0; i < MAXPOWERUP; i++)
+   		arma3[i].on = 0;
+
+
 				
     int j;
     for(j = 0; j < MAXBULLETS; j++)
@@ -755,6 +1199,8 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 							*state = MENU;
 							return 1;
 						}
+
+						
 				    }
 				        	
 
@@ -777,6 +1223,28 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 				            gamestate->player.left = 0;
 				        if(SDLK_RIGHT == event->key.keysym.sym) 
 				            gamestate->player.right = 0;
+
+				        if(gamestate->pause == 0)
+						{
+							if(SDLK_p == event->key.keysym.sym)
+							{
+								gamestate->pause = 1;
+								//puts("pra pausar");
+							}	
+						}
+						else if(gamestate->pause == 1)
+						{
+							if(SDLK_p == event->key.keysym.sym)
+							{
+								gamestate->pause = 0;
+								//puts("pra retornar");
+							}
+							if(SDLK_r == event->key.keysym.sym)
+							{
+								*state = NEWGAME;
+								return 1;
+							}	
+						}
 				    }
 					
 					break;
