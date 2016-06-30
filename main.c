@@ -260,7 +260,7 @@ int main(int argc, char const *argv[])
 
 						go = recebeImput(&event,&gamestate,&state);
 
-						rollup -= 10;
+						rollup -= 1;
 
 						SDL_RenderPresent(renderer);
 						SDL_RenderClear(renderer);
@@ -1220,7 +1220,6 @@ void closing(SDL_Window **window,SDL_Renderer **renderer)
 
     SDL_Quit();
 
-    return 0;
 }
 
 
