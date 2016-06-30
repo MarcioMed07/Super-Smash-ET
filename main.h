@@ -238,6 +238,15 @@ typedef struct _musics
 
 typedef struct _sounds
 {
+	Mix_Chunk *arma1;
+	Mix_Chunk *arma2;
+	Mix_Chunk *arma3;
+	Mix_Chunk *damage;
+	Mix_Chunk *life;
+	Mix_Chunk *speed;
+	Mix_Chunk *playerdano;
+	Mix_Chunk *shoot;
+	Mix_Chunk *enemydano;
 	
 }Sounds;
 

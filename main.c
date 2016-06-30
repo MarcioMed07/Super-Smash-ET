@@ -36,6 +36,15 @@ void audioinit()
 	music.game = Mix_LoadMUS("sounds/game.mp3");
 	music.lose = Mix_LoadMUS("sounds/lose.mp3");
 	music.win = Mix_LoadMUS("sounds/win.mp3");
+	sound.arma1 = Mix_LoadWAV("sounds/arma1.wav");
+	sound.arma2 = Mix_LoadWAV("sounds/arma2.wav");
+	sound.arma3 = Mix_LoadWAV("sounds/arma3.wav");
+	sound.damage = Mix_LoadWAV("sounds/damage.wav");
+	sound.life = Mix_LoadWAV("sounds/life.wav");
+	sound.speed = Mix_LoadWAV("sounds/speed.wav");
+	sound.playerdano = Mix_LoadWAV("sounds/playerdano.wav");
+	sound.shoot = Mix_LoadWAV("sounds/shoot.wav");
+	sound.enemydano = Mix_LoadWAV("sounds/enemydano.wav");
 	
 }
 
