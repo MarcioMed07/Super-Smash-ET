@@ -364,14 +364,12 @@ int main(int argc, char const *argv[])
 					gameended();
 					closing(&window,&renderer);
 					go = 0;
-					break;
+					return 0;
 				}
 			}
 		
 	}
 		
-
-	return 0;
 }
 
 void salahandler(Gamestate *gamestate)
@@ -1221,6 +1219,8 @@ void closing(SDL_Window **window,SDL_Renderer **renderer)
     IMG_Quit();
 
     SDL_Quit();
+
+    return 0;
 }
 
 

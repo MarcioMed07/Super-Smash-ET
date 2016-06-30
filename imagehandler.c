@@ -359,6 +359,8 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		
 		texture->scoretela = SDL_CreateTextureFromSurface( renderer, scoretelaSurface );	
 
+		SDL_FreeSurface(scoretelaSurface);
+
 		SDL_RenderCopy(renderer, texture->scoretela, NULL, &scoretelaRect);
 
 		if(gamestate->pause == 1)
