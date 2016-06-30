@@ -159,6 +159,19 @@ typedef struct _textures
 	SDL_Texture *arma3tex ;
 	SDL_Texture *scoretela;
 	SDL_Texture *scorefinal;
+	SDL_Texture *losetex;
+	SDL_Texture *gameintrotex;
+	SDL_Texture *wintex;
+	SDL_Texture *instructionstex;
+	SDL_Texture *openingtex;
+	SDL_Texture *logotex;
+	SDL_Texture *optionstex;
+	SDL_Texture *menutex;
+	SDL_Texture *menurolltex;
+	SDL_Texture *creditstex;
+	SDL_Texture *highscorestex;
+	SDL_Texture *pretotex;
+	SDL_Texture *brancotex;
 
 }Texture;
 
@@ -212,8 +225,14 @@ typedef struct _gamestate
 
 typedef struct _musics
 {
-	Mix_Music *musica;
+	Mix_Music *menu;
+	Mix_Music *boss;
+	Mix_Music *game;
+	Mix_Music *lose;
+	Mix_Music *win;
 }Musica;
+
+
 
 typedef struct _sounds
 {

@@ -20,16 +20,18 @@ void opening(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Game
 		
 		
 
-		SDL_Texture *openingtex = IMG_LoadTexture(*renderer, "images/opening/sdlop.png");
-		SDL_SetTextureBlendMode(openingtex,SDL_BLENDMODE_BLEND);
-		SDL_SetTextureAlphaMod(openingtex,opacidade);
-		SDL_RenderCopy(*renderer, openingtex,NULL, 0);
+		
+		SDL_SetTextureBlendMode(texture.openingtex,SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(texture.openingtex,opacidade);
+		SDL_RenderCopy(*renderer, texture.openingtex,NULL, 0);
 		SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
 
 		go = recebeImput(event,gamestate,state);	
 
 
-		opacidade += 3;	
+		opacidade += 1;	
+		SDL_Delay(8);
+
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);  
 	}
@@ -45,15 +47,18 @@ void opening(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Game
 		
 		
 
-		SDL_Texture *openingtex = IMG_LoadTexture(*renderer, "images/opening/sdlop.png");
-		SDL_SetTextureBlendMode(openingtex,SDL_BLENDMODE_BLEND);
-		SDL_SetTextureAlphaMod(openingtex,opacidade);
-		SDL_RenderCopy(*renderer, openingtex,NULL, 0);
+		
+		SDL_SetTextureBlendMode(texture.openingtex,SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(texture.openingtex,opacidade);
+		SDL_RenderCopy(*renderer, texture.openingtex,NULL, 0);
 		//SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
 		
 
 		go = recebeImput(event,gamestate,state);
-		opacidade -= 3;
+
+		opacidade -= 1;
+		SDL_Delay(8);
+
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);  
 	}
@@ -63,16 +68,18 @@ void opening(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Game
 		
 		
 
-		SDL_Texture *openingtex = IMG_LoadTexture(*renderer, "images/opening/logo.png");
-		SDL_SetTextureBlendMode(openingtex,SDL_BLENDMODE_BLEND);
-		SDL_SetTextureAlphaMod(openingtex,opacidade);
-		SDL_RenderCopy(*renderer, openingtex,NULL, 0);
+		
+		SDL_SetTextureBlendMode(texture.logotex,SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(texture.logotex,opacidade);
+		SDL_RenderCopy(*renderer, texture.logotex,NULL, 0);
 		//SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
 		go = recebeImput(event,gamestate,state);
 	
 
 
-		opacidade += 3;	
+		opacidade += 1;	
+		SDL_Delay(8);
+
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);  
 	}
@@ -87,15 +94,17 @@ void opening(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Game
 		
 		
 
-		SDL_Texture *openingtex = IMG_LoadTexture(*renderer, "images/opening/logo.png");
-		SDL_SetTextureBlendMode(openingtex,SDL_BLENDMODE_BLEND);
-		SDL_SetTextureAlphaMod(openingtex,opacidade);
-		SDL_RenderCopy(*renderer, openingtex,NULL, 0);
+		
+		SDL_SetTextureBlendMode(texture.logotex,SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(texture.logotex,opacidade);
+		SDL_RenderCopy(*renderer, texture.logotex,NULL, 0);
 		SDL_SetRenderDrawColor(*renderer, 0, 0,0, 0);
 		go = recebeImput(event,gamestate,state);
 
 
-		opacidade -= 3;
+		opacidade -= 1;
+		SDL_Delay(8);
+
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);  
 	}

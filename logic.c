@@ -3,8 +3,6 @@
 #include "logic.h"
 
 
-
-
 int i = 0;
 
 void logica(Gamestate *gamestate)

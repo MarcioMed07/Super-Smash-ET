@@ -28,10 +28,15 @@ void gameended();
 
 void audioinit()
 {
-	Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 1, 4096);
+	Mix_OpenAudio(11025, MIX_DEFAULT_FORMAT, 1, 4096);
 	Mix_VolumeMusic(128);
-	music.musica = Mix_LoadMUS("sounds/menu.mp3");
-	puts("zutter");
+
+	music.menu = Mix_LoadMUS("sounds/menu.mp3");
+	music.boss = Mix_LoadMUS("sounds/boss.mp3");
+	music.game = Mix_LoadMUS("sounds/game.mp3");
+	music.lose = Mix_LoadMUS("sounds/lose.mp3");
+	music.win = Mix_LoadMUS("sounds/win.mp3");
+	
 }
 
 
@@ -42,7 +47,7 @@ int main(int argc, char const *argv[])
 	audioinit();
 	
 	
-	Mix_FadeInMusic(music.musica, -1, 2000);
+	
 
 	APPSTATE state = OPENING;
 	srand(time(0));
@@ -53,12 +58,15 @@ int main(int argc, char const *argv[])
 	SDL_Window *window = NULL ; 
 	SDL_Renderer *renderer = NULL ;
 
+	
 
 	int go = 1;
 	int pause = 0;
 
 
 	initwindow(&window,&renderer);
+
+	loadimages(renderer,&texture);
 
 
 	while(go == 1)
@@ -78,8 +86,9 @@ int main(int argc, char const *argv[])
 				}
 				case MENU:
 				{
+					Mix_FadeInMusic(music.menu, -1, 500);
 					gamestate.menuroll = 0;
-					menu(&window,&renderer);
+					fadeinmenu(&window,&renderer);
 					int decide = 0;
 
 					while(decide == 0)
@@ -114,6 +123,8 @@ int main(int argc, char const *argv[])
 							state = EXIT;
 							break;
 					}
+					Mix_FadeOutMusic(500);
+					fadeoutmenu(&window,&renderer);
 					
 
 					break;
@@ -153,7 +164,8 @@ int main(int argc, char const *argv[])
 				{
 					gamestate.intro = 1;
 					gameintro(&window,&renderer,&event,&gamestate,&state);
-					loadimages(renderer,&texture);
+					Mix_FadeInMusic(music.game, -1, 500);
+					
 
 					init(&gamestate);
 
@@ -181,7 +193,7 @@ int main(int argc, char const *argv[])
 						}
 						
 						salahandler(&gamestate);
-						desenha(renderer,&gamestate,&texture);
+						
 							
 
 						
@@ -189,15 +201,19 @@ int main(int argc, char const *argv[])
 						{						
 							state = GAMEOVERLOSE;
 							running = 0;
+							gamestate.victory = -1;
 						}
 
 						if(gamestate.victory == 1)
 						{
 							state = GAMEOVERWIN;
+							Mix_FadeOutMusic(100);
 							running = 0;
 							//("yeah");
 						}
 						else;
+
+						desenha(renderer,&gamestate,&texture);
 							
 						//printf("estado: %d\n",gamestate.sala[BOSS].clear );
 
@@ -209,13 +225,16 @@ int main(int argc, char const *argv[])
 						
 
 					}
+					Mix_FadeOutMusic(500);
 
-					gameended();
+					
 
 					break;
 				}
 				case GAMEOVERWIN:
 				{	
+					Mix_FadeInMusic(music.win, -1, 2000);
+
 					int opacidade = 0;				
 
 					int go = 0;
@@ -231,15 +250,13 @@ int main(int argc, char const *argv[])
 
 					while(rollup > (historiaH * -1 ) && go == 0)
 					{
-						SDL_Texture *gameintrotex = IMG_LoadTexture(renderer, "images/game/historia.png");
-
 						historiaRect.x = 0;
 						historiaRect.y = rollup;
 						historiaRect.w = historiaW;
 						historiaRect.h = historiaH;
 
 
-						SDL_RenderCopy(renderer, gameintrotex,NULL, &historiaRect);
+						SDL_RenderCopy(renderer, texture.gameintrotex,NULL, &historiaRect);
 
 						go = recebeImput(&event,&gamestate,&state);
 
@@ -251,36 +268,55 @@ int main(int argc, char const *argv[])
 		
 					}
 
-					SDL_Texture *win = IMG_LoadTexture(renderer, "images/gameover/win.png");
-					SDL_RenderCopy(renderer, win,NULL, 0);
+					
+					SDL_RenderCopy(renderer, texture.wintex,NULL, 0);
 					SDL_RenderPresent(renderer);
 
-					SDL_Delay(2000);
-					SDL_RenderClear(renderer);   
-
-
-
-
-
-
-
+					SDL_Delay(1000);
+					SDL_RenderClear(renderer); 
 
 
 					
 					state = HIGHSCORE;	
 					
 					
+					Mix_FadeOutMusic(500);
 
 					break;
 				}
 				case GAMEOVERLOSE:
 				{
+					Mix_FadeInMusic(music.lose, -1, 2000);
+
 					int decide = 0;
 
+					int opacidade = 0;
 
-					char *composition;
-					Sint32 cursor;
-					Sint32 selection_len;
+					SDL_RenderPresent(renderer);
+					
+					while(opacidade < 255 )
+					{
+						
+						
+						SDL_SetTextureBlendMode(texture.losetex,SDL_BLENDMODE_BLEND);
+						SDL_SetTextureAlphaMod(texture.losetex,opacidade);
+						SDL_RenderCopy(renderer, texture.losetex,NULL, 0);
+						opacidade += 1;	
+						SDL_Delay(20);
+						
+						SDL_RenderPresent(renderer);
+						 
+					}
+
+					SDL_Delay(500);
+					SDL_RenderClear(renderer);
+
+					state = HIGHSCORE;
+
+
+					// char *composition;
+					// Sint32 cursor;
+					// Sint32 selection_len;
 
 					// int pronto = 0;
 					// SDL_StartTextInput();
@@ -305,7 +341,7 @@ int main(int argc, char const *argv[])
 					//                     cursor = event.edit.start;
 					//                     selection_len = event.edit.length;
 					//                     break;
-					                    
+
 					//             }
 					//         }
 					//     }
@@ -318,23 +354,14 @@ int main(int argc, char const *argv[])
 
 
 
-					while(decide == 0)
-					{
-						SDL_Texture *lose = IMG_LoadTexture(renderer, "images/gameover/lose.png");
-						SDL_RenderCopy(renderer, lose,NULL, 0);
-						SDL_RenderPresent(renderer);
-						SDL_RenderClear(renderer);  
-						
-						
-						decide = recebeImput(&event, &gamestate,&state);
-							
-					}
+					Mix_FadeOutMusic(500);
 
 					break;
 				}
 				case EXIT:
 				{
-					Mix_FreeMusic(music.musica);
+					Mix_FreeMusic(music.menu);
+					gameended();
 					closing(&window,&renderer);
 					go = 0;
 					break;
@@ -556,6 +583,7 @@ void salahandler(Gamestate *gamestate)
 		    {
 		    	if(!((PX<Prx) || (PrX<Px) || (PY < Pry) || (PrY < Py)))
 				{
+					Mix_FadeInMusic(music.boss, -1, 200);
 					gamestate->salaatual = BOSS;
 					gamestate->player.x = gamestate->sala[BOSS].portaleft.w - gamestate->sala[BOSS].portaleft.x + 2;
 					gamestate->player.y = gamestate->sala[BOSS].portaleft.y + 50 + 3;
@@ -763,6 +791,9 @@ void salahandler(Gamestate *gamestate)
 		    gamestate->sala[gamestate->salaatual].y = 0;
 		    gamestate->sala[gamestate->salaatual].w = 1366;
 		    gamestate->sala[gamestate->salaatual].h = 768;
+		    
+
+
 		   // gamestate->sala[gamestate->salaatual].waveatual = 3;
 		    
 		    break;
@@ -827,7 +858,7 @@ void init(Gamestate *gamestate)
     gamestate->player.w = 60;
     gamestate->player.h = 92;
     gamestate->player.x = gamestate->ScreenW/2 - gamestate->player.w/2 +1;
-    gamestate->player.y = gamestate->ScreenH/2 - gamestate->player.h/2 +1;
+    gamestate->player.y = gamestate->ScreenH/2 - gamestate->player.h/2 ;
     gamestate->player.life = 450;
     gamestate->player.score = 0;
     gamestate->player.speed = 4;
@@ -1515,7 +1546,7 @@ void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Ga
 
 	while(rollup > (historiaH * -1 ) && go == 0)
 	{
-		SDL_Texture *gameintrotex = IMG_LoadTexture(*renderer, "images/game/historia.png");
+		
 
 		historiaRect.x = 0;
 		historiaRect.y = rollup;
@@ -1523,11 +1554,12 @@ void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Ga
 		historiaRect.h = historiaH;
 
 
-		SDL_RenderCopy(*renderer, gameintrotex,NULL, &historiaRect);
+		SDL_RenderCopy(*renderer, texture.gameintrotex,NULL, &historiaRect);
 
 		go = recebeImput(event,gamestate,state);
 
-		rollup -= 10;
+		rollup -= 1;
+		SDL_Delay(5);
 
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);
@@ -1543,12 +1575,9 @@ void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Ga
 	while(opacidade < 255 && go == 0)
 	{
 		
-		
-
-		SDL_Texture *instructionstex = IMG_LoadTexture(*renderer, "images/game/instructions.png");
-		SDL_SetTextureBlendMode(instructionstex,SDL_BLENDMODE_BLEND);
-		SDL_SetTextureAlphaMod(instructionstex,opacidade);
-		SDL_RenderCopy(*renderer, instructionstex,NULL, 0);
+		SDL_SetTextureBlendMode(texture.instructionstex,SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(texture.instructionstex,opacidade);
+		SDL_RenderCopy(*renderer, texture.instructionstex,NULL, 0);
 		//SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
 
 		go = recebeImput(event,gamestate,state);	
@@ -1569,11 +1598,9 @@ void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Ga
 	{
 		
 		
-
-		SDL_Texture *instructionstex = IMG_LoadTexture(*renderer, "images/game/instructions.png");
-		SDL_SetTextureBlendMode(instructionstex,SDL_BLENDMODE_BLEND);
-		SDL_SetTextureAlphaMod(instructionstex,opacidade);
-		SDL_RenderCopy(*renderer, instructionstex,NULL, 0);
+		SDL_SetTextureBlendMode(texture.instructionstex,SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(texture.instructionstex,opacidade);
+		SDL_RenderCopy(*renderer, texture.instructionstex,NULL, 0);
 		//SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
 		
 

@@ -9,6 +9,8 @@
 void loadimages(SDL_Renderer* renderer,Texture *texture)
 {
 	texture->backgroundtex = IMG_LoadTexture(renderer, "images/game/backgroundfull.png");
+	texture->pretotex = IMG_LoadTexture(renderer, "images/gameover/preto.png");
+	texture->brancotex = IMG_LoadTexture(renderer, "images/gameover/branco.png");
 	
 	texture->mousetex = IMG_LoadTexture(renderer, "images/game/mouse.png");
 	texture->bullettex = IMG_LoadTexture(renderer, "images/game/bullet.png");
@@ -35,13 +37,31 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->playerw2tex = IMG_LoadTexture(renderer, "images/game/playerw2.png");
 	texture->playerw3tex = IMG_LoadTexture(renderer, "images/game/playerw3.png");
 
+
+	texture->gameintrotex = IMG_LoadTexture(renderer, "images/game/historia.png");
+	texture->instructionstex = IMG_LoadTexture(renderer, "images/game/instructions.png");
+
+	texture->wintex = IMG_LoadTexture(renderer, "images/gameover/win.png");
+	texture->losetex = IMG_LoadTexture(renderer, "images/gameover/lose.png");
+
+	texture->openingtex = IMG_LoadTexture(renderer, "images/opening/sdlop.png");
+	texture->logotex = IMG_LoadTexture(renderer, "images/opening/logo.png");
+
+	texture->optionstex = IMG_LoadTexture(renderer, "images/menu/options.png");
+	texture->menutex = IMG_LoadTexture(renderer, "images/menu/menu.png");
+	texture->menurolltex = IMG_LoadTexture(renderer, "images/menu/roll.png");
+	texture->creditstex = IMG_LoadTexture(renderer, "images/menu/credits.png");
+	texture->highscorestex = IMG_LoadTexture(renderer, "images/menu/highscores.png");
+
+
+
 	if (texture->backgroundtex == NULL)
 	{
 		fprintf(stderr, "fodeu\n%s", SDL_GetError());
 	}
 
-	font.scoretela = TTF_OpenFont("fonte.ttf", 40);
-	font.scorefinal = TTF_OpenFont("fonte.ttf", 40);
+	font.scoretela = TTF_OpenFont("fonte.ttf", 100);
+	font.scorefinal = TTF_OpenFont("fonte.ttf", 100);
 
 }
 
@@ -49,18 +69,9 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 {	
 	
 	SDL_Rect salaRect = {gamestate->sala[gamestate->salaatual].x, gamestate->sala[gamestate->salaatual].y, gamestate->sala[gamestate->salaatual].w, gamestate->sala[gamestate->salaatual].h};
-	SDL_RenderCopy(renderer, texture->backgroundtex,&salaRect ,NULL);                        
-                                 
-
-    
+	SDL_RenderCopy(renderer, texture->backgroundtex,&salaRect ,NULL); 
 
 	
-	//SDL_Rect mouseRect = {gamestate->mousex,gamestate->mousey,20,20};
-	//SDL_RenderCopy(renderer, texture->mousetex, NULL, &mouseRect);
-
-
-
-
 	int j;
 	for(j = 0; j< MAXBULLETS; j++)
 	{
@@ -285,11 +296,12 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		while(opacidade < 255 )
 		{
 			
-			SDL_Texture *brancotex = IMG_LoadTexture(renderer, "images/gameover/branco.png");
-			SDL_SetTextureBlendMode(brancotex,SDL_BLENDMODE_BLEND);
-			SDL_SetTextureAlphaMod(brancotex,opacidade);
-			SDL_RenderCopy(renderer, brancotex,NULL, 0);
+			
+			SDL_SetTextureBlendMode(texture->brancotex,SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(texture->brancotex,opacidade);
+			SDL_RenderCopy(renderer, texture->brancotex,NULL, 0);
 			opacidade += 1;	
+			SDL_Delay(10);
 			
 			SDL_RenderPresent(renderer);
 			 
@@ -302,12 +314,13 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		while(opacidade < 255 )
 		{
 						
-			SDL_Texture *pretotex = IMG_LoadTexture(renderer, "images/gameover/preto.png");
-			SDL_SetTextureBlendMode(pretotex,SDL_BLENDMODE_BLEND);
-			SDL_SetTextureAlphaMod(pretotex,opacidade);
-			SDL_RenderCopy(renderer, pretotex,NULL, 0);
+			
+			SDL_SetTextureBlendMode(texture->pretotex,SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(texture->pretotex,opacidade);
+			SDL_RenderCopy(renderer, texture->pretotex,NULL, 0);
 
-			opacidade += 5;	
+			opacidade += 1;	
+			SDL_Delay(5);
 			SDL_RenderPresent(renderer);
 			
 		}
@@ -326,11 +339,6 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		SDL_Rect playerlifeRect = {100,50,gamestate->player.life , 10};
 		SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
 		SDL_RenderFillRect(renderer, &playerlifeRect);
-
-		
-
-
-
 
 		
 
