@@ -1,5 +1,21 @@
 #pragma once
 
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
+
+typedef enum _APPSTATE{
+	OPENING,
+	MENU,
+	OPTIONS,
+	HIGHSCORE,
+	CREDITOS,
+	NEWGAME,
+	GAMEOVERWIN,
+	GAMEOVERLOSE,
+	EXIT,
+}APPSTATE;
+
 
 typedef enum _bulletdirection
 {
@@ -113,6 +129,12 @@ typedef struct _parede
 	int x,y,w,h;
 }Parede;
 
+typedef struct _fontes
+{
+	TTF_Font *scoretela;
+	TTF_Font *scorefinal;
+}Fontes;
+
 typedef struct _textures
 {
 	SDL_Texture *backgroundtex;
@@ -135,6 +157,8 @@ typedef struct _textures
 	SDL_Texture *arma1tex ;
 	SDL_Texture *arma2tex ;
 	SDL_Texture *arma3tex ;
+	SDL_Texture *scoretela;
+	SDL_Texture *scorefinal;
 
 }Texture;
 
@@ -181,10 +205,28 @@ typedef struct _gamestate
 	int musicmute;
 	int soundmute;
 	int victory;
+	int menuroll;
+	int intro;
 	
 }Gamestate;
 
+typedef struct _musics
+{
+	Mix_Music *musica;
+}Musica;
+
+typedef struct _sounds
+{
+	
+}Sounds;
+
+Musica music;
+
+Sounds sound;
+
 Texture texture;
+
+Fontes font;
 
 void loadimages(SDL_Renderer* renderer,Texture *texture);
 

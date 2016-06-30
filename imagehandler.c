@@ -2,6 +2,8 @@
 #include "main.h"
 #include "logic.h"
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <string.h>
 
 
 void loadimages(SDL_Renderer* renderer,Texture *texture)
@@ -37,6 +39,10 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	{
 		fprintf(stderr, "fodeu\n%s", SDL_GetError());
 	}
+
+	font.scoretela = TTF_OpenFont("fonte.ttf", 40);
+	font.scorefinal = TTF_OpenFont("fonte.ttf", 40);
+
 }
 
 void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
@@ -268,24 +274,83 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		
 	}
 
-
 	
 	
 
-	SDL_Rect playerlifeRect = {100,50,gamestate->player.life , 10};
-	SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
-	SDL_RenderFillRect(renderer, &playerlifeRect);
+	if(gamestate->victory == 1)
+	{
+		int opacidade = 0;
+		SDL_RenderPresent(renderer);
+		
+		while(opacidade < 255 )
+		{
+			
+			SDL_Texture *brancotex = IMG_LoadTexture(renderer, "images/gameover/branco.png");
+			SDL_SetTextureBlendMode(brancotex,SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(brancotex,opacidade);
+			SDL_RenderCopy(renderer, brancotex,NULL, 0);
+			opacidade += 1;	
+			
+			SDL_RenderPresent(renderer);
+			 
+		}
 
+		SDL_Delay(500);
+
+		opacidade = 0;
+
+		while(opacidade < 255 )
+		{
+						
+			SDL_Texture *pretotex = IMG_LoadTexture(renderer, "images/gameover/preto.png");
+			SDL_SetTextureBlendMode(pretotex,SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(pretotex,opacidade);
+			SDL_RenderCopy(renderer, pretotex,NULL, 0);
+
+			opacidade += 5;	
+			SDL_RenderPresent(renderer);
+			
+		}
+	}
 
 	
-
 	if(gamestate->pause == 1)
 	{
 		SDL_RenderCopy(renderer, texture->pausetex,NULL ,NULL);
 	}
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderPresent(renderer);
-	SDL_RenderClear(renderer);    
+
+	if(gamestate->victory == 0)
+	{
+		SDL_Rect playerlifeRect = {100,50,gamestate->player.life , 10};
+		SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+		SDL_RenderFillRect(renderer, &playerlifeRect);
+
+		
+
+
+
+
+		
+
+		SDL_Rect scoretelaRect = {110,680,300 , 40};
+		SDL_Color branco = {255,255,255, SDL_ALPHA_OPAQUE};
+
+		char str[15];
+		sprintf(str, "Pontos : %05d", gamestate->player.score);
+
+		
+
+		SDL_Surface* scoretelaSurface = TTF_RenderText_Solid(font.scoretela,str,branco);
+		
+		texture->scoretela = SDL_CreateTextureFromSurface( renderer, scoretelaSurface );	
+
+		SDL_RenderCopy(renderer, texture->scoretela, NULL, &scoretelaRect);
+
+
+		SDL_RenderPresent(renderer);
+		SDL_RenderClear(renderer);    
+	}
 
 }

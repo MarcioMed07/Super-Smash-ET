@@ -1,22 +1,14 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include "main.h"
 #include "logic.h"
 #include "states.h"
 
 
-typedef enum _APPSTATE{
-	OPENING,
-	MENU,
-	OPTIONS,
-	HIGHSCORE,
-	CREDITOS,
-	NEWGAME,
-	GAMEOVERWIN,
-	GAMEOVERLOSE,
-	EXIT,
-}APPSTATE;
+
 
 
 void init (Gamestate *);
@@ -29,14 +21,33 @@ void initwindow(SDL_Window**,SDL_Renderer**);
 
 void salahandler(Gamestate*);
 
+void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Gamestate *gamestate,APPSTATE*state);
+
+void gameended();
+
+
+void audioinit()
+{
+	Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 1, 4096);
+	Mix_VolumeMusic(128);
+	music.musica = Mix_LoadMUS("sounds/menu.mp3");
+	puts("zutter");
+}
+
+
 
 int main(int argc, char const *argv[])
 {
 	
+	audioinit();
+	
+	
+	Mix_FadeInMusic(music.musica, -1, 2000);
 
 	APPSTATE state = OPENING;
 	srand(time(0));
-	
+
+
 
 	Gamestate gamestate;
 	SDL_Window *window = NULL ; 
@@ -49,7 +60,6 @@ int main(int argc, char const *argv[])
 
 	initwindow(&window,&renderer);
 
-	loadimages(renderer,&texture);
 
 	while(go == 1)
 	{
@@ -61,20 +71,51 @@ int main(int argc, char const *argv[])
 				case OPENING:
 				{
 
-					//opening(&window,&renderer);
+					opening(&window,&renderer,&event,&gamestate,&state);
 
 					state = MENU;
 					break;
 				}
 				case MENU:
 				{
-					int decide = 0;
+					gamestate.menuroll = 0;
 					menu(&window,&renderer);
+					int decide = 0;
+
 					while(decide == 0)
 					{
-						
-						decide = recebeImput(&event,&gamestate,&state);
+						decide = recebeImput(&event,&gamestate,&state);	
+						desenhamenu(&renderer,&gamestate);
+						if(gamestate.menuroll > 4)
+						{
+							gamestate.menuroll = 0;
+						}
+						if(gamestate.menuroll < 0)
+						{
+							gamestate.menuroll = 4;
+						}
 					}
+
+					switch(gamestate.menuroll)
+					{
+						case 0:
+							state = NEWGAME;
+							break;
+						case 1:
+							state = HIGHSCORE; 
+							break;
+						case 2:
+							state = CREDITOS;
+							break;
+						case 3:
+							state = OPTIONS;
+							break;
+						case 4: 
+							state = EXIT;
+							break;
+					}
+					
+
 					break;
 						
 				}
@@ -110,6 +151,10 @@ int main(int argc, char const *argv[])
 				}
 				case NEWGAME:
 				{
+					gamestate.intro = 1;
+					gameintro(&window,&renderer,&event,&gamestate,&state);
+					loadimages(renderer,&texture);
+
 					init(&gamestate);
 
 					int running = 1;
@@ -150,7 +195,7 @@ int main(int argc, char const *argv[])
 						{
 							state = GAMEOVERWIN;
 							running = 0;
-							puts("yeah");
+							//("yeah");
 						}
 						else;
 							
@@ -164,27 +209,114 @@ int main(int argc, char const *argv[])
 						
 
 					}
+
+					gameended();
+
 					break;
 				}
 				case GAMEOVERWIN:
-				{
-					int decide = 0;
+				{	
+					int opacidade = 0;				
 
-					while(decide == 0)
+					int go = 0;
+
+				    int historiaW = 1366;
+				    int historiaH = 2000;
+				    int rollup = 768;
+
+				    SDL_Rect historiaRect;				    
+
+					
+
+
+					while(rollup > (historiaH * -1 ) && go == 0)
 					{
-						SDL_Texture *win = IMG_LoadTexture(renderer, "images/gameover/win.png");
-						SDL_RenderCopy(renderer, win,NULL, 0);
+						SDL_Texture *gameintrotex = IMG_LoadTexture(renderer, "images/game/historia.png");
+
+						historiaRect.x = 0;
+						historiaRect.y = rollup;
+						historiaRect.w = historiaW;
+						historiaRect.h = historiaH;
+
+
+						SDL_RenderCopy(renderer, gameintrotex,NULL, &historiaRect);
+
+						go = recebeImput(&event,&gamestate,&state);
+
+						rollup -= 10;
+
 						SDL_RenderPresent(renderer);
-						SDL_RenderClear(renderer);   
-						
-						decide = recebeImput(&event, &gamestate,&state);
+						SDL_RenderClear(renderer);
+
+		
 					}
+
+					SDL_Texture *win = IMG_LoadTexture(renderer, "images/gameover/win.png");
+					SDL_RenderCopy(renderer, win,NULL, 0);
+					SDL_RenderPresent(renderer);
+
+					SDL_Delay(2000);
+					SDL_RenderClear(renderer);   
+
+
+
+
+
+
+
+
+
+					
+					state = HIGHSCORE;	
+					
+					
 
 					break;
 				}
 				case GAMEOVERLOSE:
 				{
 					int decide = 0;
+
+
+					char *composition;
+					Sint32 cursor;
+					Sint32 selection_len;
+
+					// int pronto = 0;
+					// SDL_StartTextInput();
+					//     while (pronto == 0) 
+					//     {
+					//         SDL_Event event;
+					//         if (SDL_PollEvent(&event)) 
+					//         {
+					//             switch (event.type) 
+					//             {
+					//                 case SDL_QUIT:
+					                    
+					//                     pronto = 1;
+					//                     break;
+					//                 case SDL_TEXTINPUT:
+					                    
+					//                     strcat(gamestate.player.name, event.text.text);
+					//                     break;
+					//                 case SDL_TEXTEDITING:
+					                    
+					//                     composition = event.edit.text;
+					//                     cursor = event.edit.start;
+					//                     selection_len = event.edit.length;
+					//                     break;
+					                    
+					//             }
+					//         }
+					//     }
+					//    SDL_StopTextInput();
+
+					//    printf("%s\n",gamestate.player.name );
+
+
+
+
+
 
 					while(decide == 0)
 					{
@@ -202,6 +334,7 @@ int main(int argc, char const *argv[])
 				}
 				case EXIT:
 				{
+					Mix_FreeMusic(music.musica);
 					closing(&window,&renderer);
 					go = 0;
 					break;
@@ -279,7 +412,7 @@ void salahandler(Gamestate *gamestate)
 		    	if(!((PX<Prx) || (PrX<Px) || (PY < Pry) || (PrY < Py)))
 				{
 					gamestate->salaatual = SALA3;
-					gamestate->player.x = gamestate->sala[SALA3].portaleft.w - gamestate->sala[SALA4].portaleft.x;
+					gamestate->player.x = gamestate->sala[SALA3].portaleft.w - gamestate->sala[SALA3].portaleft.x;
 					gamestate->player.y = gamestate->sala[SALA3].portaleft.y + 50 + 1;
 					gamestate->rob = 60;
 					for(i = 0; i < MAXENEMIES; i++)
@@ -354,7 +487,7 @@ void salahandler(Gamestate *gamestate)
 				{
 					gamestate->salaatual = SALA4;
 					gamestate->player.x = gamestate->sala[SALA4].portaleft.w - gamestate->sala[SALA4].portaleft.x;
-					gamestate->player.y = gamestate->sala[SALA4].portaleft.y ;
+					gamestate->player.y = gamestate->sala[SALA4].portaleft.y + 1;
 					gamestate->rob = 60;
 					for(i = 0; i < MAXENEMIES; i++)
 				   		enemy[i].on = 0;
@@ -424,8 +557,8 @@ void salahandler(Gamestate *gamestate)
 		    	if(!((PX<Prx) || (PrX<Px) || (PY < Pry) || (PrY < Py)))
 				{
 					gamestate->salaatual = BOSS;
-					gamestate->player.x = gamestate->sala[BONUS].portaleft.x + 100;
-					gamestate->player.y = gamestate->sala[BONUS].portaleft.y ;
+					gamestate->player.x = gamestate->sala[BOSS].portaleft.w - gamestate->sala[BOSS].portaleft.x + 2;
+					gamestate->player.y = gamestate->sala[BOSS].portaleft.y + 50 + 3;
 					gamestate->rob = 60;
 					for(i = 0; i < MAXENEMIES; i++)
 				   		enemy[i].on = 0;
@@ -536,8 +669,8 @@ void salahandler(Gamestate *gamestate)
 		    	if(!((PX<Prx) || (PrX<Px) || (PY < Pry) || (PrY < Py)))
 				{
 					gamestate->salaatual = BONUS;
-					gamestate->player.x = gamestate->sala[BONUS].portaleft.x + 100;
-					gamestate->player.y = gamestate->sala[BONUS].portaleft.y ;
+					gamestate->player.x = gamestate->sala[BONUS].portaleft.w - gamestate->sala[BONUS].portaleft.x + 2;
+					gamestate->player.y = gamestate->sala[BONUS].portaleft.y + 50 + 3;
 					gamestate->rob = 60;
 					for(i = 0; i < MAXENEMIES; i++)
 				   		enemy[i].on = 0;
@@ -639,13 +772,16 @@ void salahandler(Gamestate *gamestate)
 		    gamestate->sala[gamestate->salaatual].w = 1366;
 		    gamestate->sala[gamestate->salaatual].h = 768;
 		   // gamestate->sala[gamestate->salaatual].waveatual = 3;
-		    if(!((PX<Plx) || (PlX<Px) || (PY < Ply) || (PlY < Py)))
-			{
-				gamestate->salaatual = SALA4;
-				gamestate->player.x = gamestate->sala[SALA4].portaright.x - gamestate->player.w - 10;
-				gamestate->player.y = gamestate->sala[SALA4].portaright.y ;
-				gamestate->rob = 60;
-				for(i = 0; i < MAXENEMIES; i++)
+			
+			if(gamestate->sala[gamestate->salaatual].clear == 1)
+		    {	   	
+			    if(!((PX<Plx) || (PlX<Px) || (PY < Ply) || (PlY < Py)))
+				{
+					gamestate->salaatual = SALA4;
+					gamestate->player.x = gamestate->sala[SALA4].portaright.x - gamestate->player.w - 10;
+					gamestate->player.y = gamestate->sala[SALA4].portaright.y ;
+					gamestate->rob = 60;
+					for(i = 0; i < MAXENEMIES; i++)
 				   		enemy[i].on = 0;
 
 				   	for(i = 0; i < MAXENEMIES; i++)
@@ -668,6 +804,7 @@ void salahandler(Gamestate *gamestate)
 
 				   	for(i = 0; i < MAXPOWERUP; i++)
 				   		arma3[i].on = 0;
+				}
 			}
 		    break;
 	}
@@ -687,11 +824,11 @@ void init(Gamestate *gamestate)
     gamestate->parede.h = gamestate->ScreenH-200;
     gamestate->parede.w = gamestate->ScreenW-200;
 
-    gamestate->player.w = 86;
-    gamestate->player.h = 100;
-    gamestate->player.x = gamestate->ScreenW/2 - gamestate->player.w/2 ;
-    gamestate->player.y = gamestate->ScreenH/2 - gamestate->player.h/2 ;
-    gamestate->player.life = 300;
+    gamestate->player.w = 60;
+    gamestate->player.h = 92;
+    gamestate->player.x = gamestate->ScreenW/2 - gamestate->player.w/2 +1;
+    gamestate->player.y = gamestate->ScreenH/2 - gamestate->player.h/2 +1;
+    gamestate->player.life = 450;
     gamestate->player.score = 0;
     gamestate->player.speed = 4;
     gamestate->playerup = 0;
@@ -874,22 +1011,22 @@ void init(Gamestate *gamestate)
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardleft = 10;
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemybossleft = 0;
 			    }
-			    gamestate->sala[gamestate->salaatual].portaup.x = 1366/2 - 370/2;
+			    gamestate->sala[gamestate->salaatual].portaup.x = 464;
 			    gamestate->sala[gamestate->salaatual].portaup.y = 0;
-			    gamestate->sala[gamestate->salaatual].portaup.w = 370;
+			    gamestate->sala[gamestate->salaatual].portaup.w = 356;
 			    gamestate->sala[gamestate->salaatual].portaup.h = 100;
 			    gamestate->sala[gamestate->salaatual].portadown.x = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.y = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.w = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.h = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.x = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.y = 261;
+			    gamestate->sala[gamestate->salaatual].portaleft.x = -2;
+			    gamestate->sala[gamestate->salaatual].portaleft.y = 255;
 			    gamestate->sala[gamestate->salaatual].portaleft.w = 100;
-			    gamestate->sala[gamestate->salaatual].portaleft.h = 240;
+			    gamestate->sala[gamestate->salaatual].portaleft.h = 252;
 			    gamestate->sala[gamestate->salaatual].portaright.x = 1266;
-			    gamestate->sala[gamestate->salaatual].portaright.y = 255;
+			    gamestate->sala[gamestate->salaatual].portaright.y = 250;
 			    gamestate->sala[gamestate->salaatual].portaright.w = 100;
-			    gamestate->sala[gamestate->salaatual].portaright.h = 250;
+			    gamestate->sala[gamestate->salaatual].portaright.h = 260;
 			    break;
 			case BOSS:
 				gamestate->sala[gamestate->salaatual].x = 1366*2;
@@ -927,27 +1064,27 @@ void init(Gamestate *gamestate)
 			    gamestate->sala[gamestate->salaatual].portadown.y = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.w = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.h = 0;
-				gamestate->sala[gamestate->salaatual].portaleft.x = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.y = 261;
+			    gamestate->sala[gamestate->salaatual].portaleft.x = -2;
+			    gamestate->sala[gamestate->salaatual].portaleft.y = 255;
 			    gamestate->sala[gamestate->salaatual].portaleft.w = 100;
-			    gamestate->sala[gamestate->salaatual].portaleft.h = 240;
+			    gamestate->sala[gamestate->salaatual].portaleft.h = 252;
 			    gamestate->sala[gamestate->salaatual].portaright.x = 0;
 			    gamestate->sala[gamestate->salaatual].portaright.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaright.w = 0;
 			    gamestate->sala[gamestate->salaatual].portaright.h = 0;
 			    break;
 			case BONUS:
-				gamestate->sala[gamestate->salaatual].x = 1366*2;
+				gamestate->sala[gamestate->salaatual].x = 1366 * 2;
 			    gamestate->sala[gamestate->salaatual].y = 768;
 			    gamestate->sala[gamestate->salaatual].w = 1366;
 			    gamestate->sala[gamestate->salaatual].h = 768;
 			    gamestate->sala[gamestate->salaatual].waveatual = 2;
-			    //gamestate->sala[gamestate->salaatual].enemytype1 = 0;
-			    //gamestate->sala[gamestate->salaatual].enemytype2 = 0;
-			    //gamestate->sala[gamestate->salaatual].enemytype3 = 0;
-			    //gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
-			    //gamestate->sala[gamestate->salaatual].wave = 0;
-			    //gamestate->sala[gamestate->salaatual].clear = 1;
+			   // gamestate->sala[gamestate->salaatual].enemytype1 = 7;
+			   // gamestate->sala[gamestate->salaatual].enemytype2 = 4;
+			   // gamestate->sala[gamestate->salaatual].enemytype3 = 3;
+			   // gamestate->sala[gamestate->salaatual].enemytypeboss = 0;
+			   // gamestate->sala[gamestate->salaatual].wave = 3;
+			   // gamestate->sala[gamestate->salaatual].clear = 1;
 			    for(i = 0; i < 3; i++)
 			    {
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasytospawn = 20;
@@ -958,11 +1095,11 @@ void init(Gamestate *gamestate)
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemymedium = 0;
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhard = 0;
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemyboss = 0;
+			    	gamestate->sala[gamestate->salaatual].clear = 0;
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemyeasyleft = 20;
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemymediumleft = 0;
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardleft = 0;
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemybossleft = 0;
-			    	gamestate->sala[gamestate->salaatual].clear = 0;
 			    }
 			    gamestate->sala[gamestate->salaatual].portaup.x = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.y = 0;
@@ -972,10 +1109,10 @@ void init(Gamestate *gamestate)
 			    gamestate->sala[gamestate->salaatual].portadown.y = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.w = 0;
 			    gamestate->sala[gamestate->salaatual].portadown.h = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.x = 0;
-			    gamestate->sala[gamestate->salaatual].portaleft.y = 261;
+			    gamestate->sala[gamestate->salaatual].portaleft.x = -2;
+			    gamestate->sala[gamestate->salaatual].portaleft.y = 255;
 			    gamestate->sala[gamestate->salaatual].portaleft.w = 100;
-			    gamestate->sala[gamestate->salaatual].portaleft.h = 240;
+			    gamestate->sala[gamestate->salaatual].portaleft.h = 252;
 			    gamestate->sala[gamestate->salaatual].portaright.x = 0;
 			    gamestate->sala[gamestate->salaatual].portaright.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaright.w = 0;
@@ -1044,8 +1181,13 @@ void init(Gamestate *gamestate)
 
 void closing(SDL_Window **window,SDL_Renderer **renderer)
 {
+	
 	SDL_DestroyRenderer(*renderer);
     SDL_DestroyWindow(*window);
+    Mix_CloseAudio();
+    Mix_Quit();
+    TTF_Quit();
+    IMG_Quit();
 
     SDL_Quit();
 }
@@ -1065,7 +1207,7 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					{
 						if(SDLK_RETURN == event->key.keysym.sym) 
 						{
-				            *state = MENU;
+				            
 				            return 1;
 						}
 					}
@@ -1077,34 +1219,26 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					if(event->type == SDL_QUIT)
 					{
 						*state = EXIT;
+						gamestate->menuroll = 4;
+
 						return 1;
 					}
 					if(event->type == SDL_KEYDOWN)
 					{
-						if(SDLK_1 == event->key.keysym.sym) 
+						if(SDLK_UP == event->key.keysym.sym) 
 						{
-				            *state = NEWGAME;
-				            return 1;
+				            gamestate->menuroll -= 1;
+				            return 0;
 						}
-				        if(SDLK_2 == event->key.keysym.sym) 
+				        if(SDLK_DOWN == event->key.keysym.sym) 
 				        {
-				            *state = OPTIONS;
-				            return 1;
+				            gamestate->menuroll += 1;
+				            return 0;
 				        }
-				        if(SDLK_3 == event->key.keysym.sym) 
+				        if(SDLK_RETURN == event->key.keysym.sym) 
 				        {
-				            *state = CREDITOS;
 				            return 1;
-				        }
-				        if(SDLK_4 == event->key.keysym.sym) 
-				        {
-				            *state = HIGHSCORE;
-				            return 1;
-				        }
-				        if(SDLK_5 == event->key.keysym.sym || SDLK_ESCAPE == event->key.keysym.sym) 
-				        {
-				        	*state = EXIT;
-				        	return 1;
+				        
 				        }
 				    }
 					break;					
@@ -1119,7 +1253,7 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					if(event->type == SDL_KEYDOWN)
 					{
 						
-				        if(SDLK_2 == event->key.keysym.sym) 
+				        if(SDLK_ESCAPE == event->key.keysym.sym) 
 				        {
 				            *state = MENU;
 				            return 1;
@@ -1137,7 +1271,7 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					if(event->type == SDL_KEYDOWN)
 					{
 						
-				        if(SDLK_2 == event->key.keysym.sym) 
+				        if(SDLK_ESCAPE == event->key.keysym.sym) 
 				        {
 				            *state = MENU;
 				            return 1;
@@ -1155,7 +1289,7 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					if(event->type == SDL_KEYDOWN)
 					{
 						
-				        if(SDLK_2 == event->key.keysym.sym) 
+				        if(SDLK_ESCAPE == event->key.keysym.sym) 
 				        {
 				            *state = MENU;
 				            return 1;
@@ -1166,87 +1300,103 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 				case NEWGAME:
 				{	
 
-					if(event->type == SDL_QUIT)
+					if(gamestate->intro == 1)
 					{
-						*state = EXIT;
-						return 1;
-					}
-					if(event->type == SDL_KEYDOWN)
-					{
-						if(SDLK_s == event->key.keysym.sym) 
-				           gamestate->playerdown = 1; 
-				        else if(SDLK_w == event->key.keysym.sym) 
-				            gamestate->playerup = 1;
-				        if(SDLK_a == event->key.keysym.sym) 
-				            gamestate->playerleft = 1;
-				        else if(SDLK_d == event->key.keysym.sym) 
-				            gamestate->playerright = 1;
-				        
-
-				        if(SDLK_DOWN == event->key.keysym.sym) 
-				           gamestate->player.down = 1; 
-				        if(SDLK_UP == event->key.keysym.sym) 
-				            gamestate->player.up = 1;
-				        if(SDLK_LEFT == event->key.keysym.sym) 
-				            gamestate->player.left = 1;
-				        if(SDLK_RIGHT == event->key.keysym.sym) 
-				            gamestate->player.right = 1;
-
-
-
-				        if(SDLK_ESCAPE == event->key.keysym.sym)
+						if(event->type == SDL_KEYDOWN)
 						{
-							*state = MENU;
+							
+
+					        if(SDLK_RETURN == event->key.keysym.sym)
+							{
+								gamestate->intro = 0;
+								return 1;
+							}
+						}
+					}
+					else
+					{
+
+						if(event->type == SDL_QUIT)
+						{
+							*state = EXIT;
 							return 1;
 						}
-
-						
-				    }
-				        	
-
-				    if(event->type == SDL_KEYUP)
-					{
-				        if(SDLK_s == event->key.keysym.sym) 
-				            gamestate->playerdown = 0;
-				        else if(SDLK_w == event->key.keysym.sym) 
-				            gamestate->playerup = 0;
-				        if(SDLK_a == event->key.keysym.sym) 
-				           	gamestate->playerleft = 0;
-				        else if(SDLK_d == event->key.keysym.sym) 
-				            gamestate->playerright = 0;
-
-				        if(SDLK_DOWN == event->key.keysym.sym) 
-				           gamestate->player.down = 0; 
-				        if(SDLK_UP == event->key.keysym.sym) 
-				            gamestate->player.up = 0;
-				        if(SDLK_LEFT == event->key.keysym.sym) 
-				            gamestate->player.left = 0;
-				        if(SDLK_RIGHT == event->key.keysym.sym) 
-				            gamestate->player.right = 0;
-
-				        if(gamestate->pause == 0)
+						if(event->type == SDL_KEYDOWN)
 						{
-							if(SDLK_p == event->key.keysym.sym)
+							if(SDLK_s == event->key.keysym.sym) 
+					           gamestate->playerdown = 1; 
+					        else if(SDLK_w == event->key.keysym.sym) 
+					            gamestate->playerup = 1;
+					        if(SDLK_a == event->key.keysym.sym) 
+					            gamestate->playerleft = 1;
+					        else if(SDLK_d == event->key.keysym.sym) 
+					            gamestate->playerright = 1;
+					        
+
+					        if(SDLK_DOWN == event->key.keysym.sym) 
+					           gamestate->player.down = 1; 
+					        if(SDLK_UP == event->key.keysym.sym) 
+					            gamestate->player.up = 1;
+					        if(SDLK_LEFT == event->key.keysym.sym) 
+					            gamestate->player.left = 1;
+					        if(SDLK_RIGHT == event->key.keysym.sym) 
+					            gamestate->player.right = 1;
+
+
+
+					        if(SDLK_ESCAPE == event->key.keysym.sym)
 							{
-								gamestate->pause = 1;
-								//puts("pra pausar");
-							}	
-						}
-						else if(gamestate->pause == 1)
-						{
-							if(SDLK_p == event->key.keysym.sym)
-							{
-								gamestate->pause = 0;
-								//puts("pra retornar");
-							}
-							if(SDLK_r == event->key.keysym.sym)
-							{
-								*state = NEWGAME;
+								*state = MENU;
 								return 1;
-							}	
-						}
-				    }
-					
+							}
+
+							
+					    }
+					        	
+
+					    if(event->type == SDL_KEYUP)
+						{
+					        if(SDLK_s == event->key.keysym.sym) 
+					            gamestate->playerdown = 0;
+					        else if(SDLK_w == event->key.keysym.sym) 
+					            gamestate->playerup = 0;
+					        if(SDLK_a == event->key.keysym.sym) 
+					           	gamestate->playerleft = 0;
+					        else if(SDLK_d == event->key.keysym.sym) 
+					            gamestate->playerright = 0;
+
+					        if(SDLK_DOWN == event->key.keysym.sym) 
+					           gamestate->player.down = 0; 
+					        if(SDLK_UP == event->key.keysym.sym) 
+					            gamestate->player.up = 0;
+					        if(SDLK_LEFT == event->key.keysym.sym) 
+					            gamestate->player.left = 0;
+					        if(SDLK_RIGHT == event->key.keysym.sym) 
+					            gamestate->player.right = 0;
+
+					        if(gamestate->pause == 0)
+							{
+								if(SDLK_p == event->key.keysym.sym)
+								{
+									gamestate->pause = 1;
+									////("pra pausar");
+								}	
+							}
+							else if(gamestate->pause == 1)
+							{
+								if(SDLK_p == event->key.keysym.sym)
+								{
+									gamestate->pause = 0;
+									////("pra retornar");
+								}
+								if(SDLK_r == event->key.keysym.sym)
+								{
+									*state = NEWGAME;
+									return 1;
+								}	
+							}
+					    }
+					}
 					break;
 				}
 				case GAMEOVERWIN:
@@ -1344,4 +1494,124 @@ void initwindow(SDL_Window **window,SDL_Renderer **renderer)
         	SDL_RenderSetLogicalSize(*renderer, ScreenW, ScreenH);
         }
     }
+    TTF_Init(); // em nome de Odin
+    Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG);
+    IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF);
+}
+
+
+void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Gamestate *gamestate,APPSTATE*state)
+{
+	int opacidade = 0;
+
+    int go = 0;
+
+    int historiaW = 1366;
+    int historiaH = 2000;
+    int rollup = 768;
+
+    SDL_Rect historiaRect;
+
+
+	while(rollup > (historiaH * -1 ) && go == 0)
+	{
+		SDL_Texture *gameintrotex = IMG_LoadTexture(*renderer, "images/game/historia.png");
+
+		historiaRect.x = 0;
+		historiaRect.y = rollup;
+		historiaRect.w = historiaW;
+		historiaRect.h = historiaH;
+
+
+		SDL_RenderCopy(*renderer, gameintrotex,NULL, &historiaRect);
+
+		go = recebeImput(event,gamestate,state);
+
+		rollup -= 10;
+
+		SDL_RenderPresent(*renderer);
+		SDL_RenderClear(*renderer);
+
+		
+	}
+
+	go = 0;
+	opacidade = 0;
+
+	SDL_SetRenderDrawColor(*renderer, 0, 0,0, 255);
+
+	while(opacidade < 255 && go == 0)
+	{
+		
+		
+
+		SDL_Texture *instructionstex = IMG_LoadTexture(*renderer, "images/game/instructions.png");
+		SDL_SetTextureBlendMode(instructionstex,SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(instructionstex,opacidade);
+		SDL_RenderCopy(*renderer, instructionstex,NULL, 0);
+		//SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
+
+		go = recebeImput(event,gamestate,state);	
+
+
+		opacidade += 10;	
+		SDL_RenderPresent(*renderer);
+		SDL_RenderClear(*renderer);  
+	}
+
+	if(go == 0)
+	{	
+		SDL_Delay(2000);
+		opacidade = 255;
+	}
+
+	while(opacidade > 0 && go ==0)
+	{
+		
+		
+
+		SDL_Texture *instructionstex = IMG_LoadTexture(*renderer, "images/game/instructions.png");
+		SDL_SetTextureBlendMode(instructionstex,SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(instructionstex,opacidade);
+		SDL_RenderCopy(*renderer, instructionstex,NULL, 0);
+		//SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
+		
+
+		go = recebeImput(event,gamestate,state);
+		opacidade -= 10;
+		SDL_RenderPresent(*renderer);
+		SDL_RenderClear(*renderer);  
+	}
+	gamestate->intro = 0;
+
+}
+
+void gameended()
+{
+	SDL_DestroyTexture(texture.backgroundtex );
+	
+	SDL_DestroyTexture(texture.mousetex);
+	SDL_DestroyTexture(texture.bullettex );
+
+	SDL_DestroyTexture(texture.enemytex );
+	SDL_DestroyTexture(texture.enemymediumtex );
+	SDL_DestroyTexture(texture.enemybosstex );
+
+	SDL_DestroyTexture(texture.portauptex );
+	SDL_DestroyTexture(texture.portadowntex);
+	SDL_DestroyTexture(texture.portalefttex );
+	SDL_DestroyTexture(texture.portarighttex);
+
+	SDL_DestroyTexture(texture.pausetex );
+
+	SDL_DestroyTexture(texture.lifeplustex );
+	SDL_DestroyTexture(texture.speedplustex );
+	SDL_DestroyTexture(texture.damageplustex);
+	SDL_DestroyTexture(texture.arma1tex );
+	SDL_DestroyTexture(texture.arma2tex );
+	SDL_DestroyTexture(texture.arma3tex );
+
+	SDL_DestroyTexture(texture.playerw1tex );
+	SDL_DestroyTexture(texture.playerw2tex );
+	SDL_DestroyTexture(texture.playerw3tex );
 }

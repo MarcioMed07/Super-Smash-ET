@@ -19,7 +19,7 @@ void logica(Gamestate *gamestate)
 				{
 					createenemy(gamestate);
 			   		
-					//puts("criou");
+					////("criou");
 				}				
 				
 			}
@@ -30,7 +30,7 @@ void logica(Gamestate *gamestate)
 				{
 					createenemymedium(gamestate);
 			   		
-					//puts("criou");
+					////("criou");
 				}				
 				
 			}
@@ -41,7 +41,7 @@ void logica(Gamestate *gamestate)
 				{
 					createboss(gamestate);
 			   		
-					//puts("criou");
+					////("criou");
 				}				
 				
 			}
@@ -122,14 +122,14 @@ void logica(Gamestate *gamestate)
 	updatearma2(gamestate);
 	updatearma3(gamestate);
 
-	if(gamestate->player.life > 300)
+	if(gamestate->player.life > 450)
 	{
-		gamestate->player.life = 300;
+		gamestate->player.life = 450;
 	}
 
-	if(gamestate->player.speed > 12)
+	if(gamestate->player.speed > 8)
 	{
-		gamestate->player.speed = 12;
+		gamestate->player.speed = 8;
 	}
 
 
@@ -222,7 +222,7 @@ void createbullet(Gamestate *gamestate)
 
 				if(gamestate->player.arma == 3)
 				{
-					bullet[j].speed = 10;
+					bullet[j].speed = 15;
 					gamestate->rof = 40;
 				}
 
@@ -464,8 +464,8 @@ void createenemy(Gamestate *gamestate)
 			if(enemy[j].on == 1)
 			{
 				gamestate->sala[gamestate->salaatual].wave[gamestate->sala[gamestate->salaatual].waveatual].enemyeasytospawn--;
-				enemy[j].w = 86;
-				enemy[j].h = 120;
+				enemy[j].w = 60;
+				enemy[j].h = 103;
 				enemy[j].life = 30;
 				enemy[j].speed = 2;
 				enemy[j].move = 1;
@@ -587,6 +587,7 @@ void updateenemy(Gamestate *gamestate)
 			{
 				int drop = rand() % 100;
 				
+				gamestate->player.score += 10;
 
 				if(drop >= 0 && drop < 5)
 				{
@@ -607,6 +608,10 @@ void updateenemy(Gamestate *gamestate)
 				if(drop >= 20 && drop < 30)
 				{
 					createlife(enemy[i].x, enemy[i].y);
+				}
+				if(drop >= 30)
+				{
+					gamestate->player.score += 10;					
 				}
 				enemy[i].on = 0;
 				// enemy[i].w = 0;
@@ -671,8 +676,8 @@ void createenemymedium(Gamestate *gamestate)
 			if(enemymedium[j].on == 1)
 			{
 				gamestate->sala[gamestate->salaatual].wave[gamestate->sala[gamestate->salaatual].waveatual].enemymediumtospawn--;
-				enemymedium[j].w = 86;
-				enemymedium[j].h = 100;
+				enemymedium[j].w = 60;
+				enemymedium[j].h = 86;
 				enemymedium[j].life = 60;
 				enemymedium[j].speed = 1;
 				enemymedium[j].move = 1;
@@ -793,6 +798,8 @@ void updateenemymedium(Gamestate *gamestate)
 			if(enemymedium[i].life <= 0)
 			{	
 				int drop = rand() % 100;
+
+				gamestate->player.score += 30;
 				if(drop >= 0 && drop < 10)
 				{
 					createspeed(enemymedium[i].x, enemymedium[i].y);
@@ -812,6 +819,10 @@ void updateenemymedium(Gamestate *gamestate)
 				if(drop >= 35 && drop < 50)
 				{
 					createlife(enemymedium[i].x, enemymedium[i].y);
+				}
+				if(drop >= 50)
+				{
+					gamestate->player.score += 10;
 				}
 				enemymedium[i].on = 0;
 				// enemymedium[i].w = 0;
@@ -852,10 +863,10 @@ void createboss(Gamestate *gamestate)
 				gamestate->sala[gamestate->salaatual].wave[gamestate->sala[gamestate->salaatual].waveatual].enemybosstospawn--;
 				enemyboss[j].x = 1184;
 			    enemyboss[j].y = 340;
-				enemyboss[j].w = 86 * 2;
-				enemyboss[j].h = 100 * 2;
-				enemyboss[j].life = 300;
-				enemyboss[j].speed = 6;
+				enemyboss[j].w = 60 * 2;
+				enemyboss[j].h = 86 * 2;
+				enemyboss[j].life = 900;
+				enemyboss[j].speed = 4;
 				enemyboss[j].move = 1;
 				gamestate->rob = 30;
 				break;
@@ -974,7 +985,7 @@ void updateboss(Gamestate *gamestate)
 
 			if(enemyboss[i].life <= 0)
 			{	
-				
+				gamestate->player.score += 500;
 				enemyboss[i].on = 0;
 				// enemymedium[i].w = 0;
 				// enemymedium[i].h = 0;
@@ -1000,7 +1011,7 @@ void createlife(int x,int y)
 	
 	for (j = 0; j < MAXPOWERUP; j++)
 	{
-		puts("vida");
+		
 
 
 		if(lifeplus[j].on == 0)
@@ -1027,7 +1038,7 @@ void createspeed(int x,int y)
 	
 	for (j = 0; j < MAXPOWERUP; j++)
 	{
-		puts("speed");
+		
 
 		if(speedplus[j].on == 0)
 		{	
@@ -1050,7 +1061,7 @@ void createdamage(int x,int y)
 	
 	for (j = 0; j < MAXPOWERUP; j++)
 	{
-		puts("damage");
+		//("damage");
 
 		if(damageplus[j].on == 0)
 		{	
@@ -1073,7 +1084,7 @@ void createarma1(int x,int y)
 	
 	for (j = 0; j < MAXPOWERUP; j++)
 	{
-		puts("arma1");
+		//("arma1");
 
 		if(arma1[j].on == 0)
 		{	
@@ -1096,7 +1107,7 @@ void createarma2(int x,int y)
 	
 	for (j = 0; j < MAXPOWERUP; j++)
 	{
-		puts("arma2");
+		//("arma2");
 
 		if(arma2[j].on == 0)
 		{	
@@ -1119,7 +1130,7 @@ void createarma3(int x,int y)
 	
 	for (j = 0; j < MAXPOWERUP; j++)
 	{
-		puts("arma3");
+		//("arma3");
 
 		if(arma3[j].on == 0)
 		{	
@@ -1249,7 +1260,7 @@ void updatedamage(Gamestate *gamestate)
 			{
 				damageplus[i].on = 0;
 
-				gamestate->player.damageplus = gamestate->player.damageplus + 5;
+				gamestate->player.damageplus = gamestate->player.damageplus + 1;
 				
 			}
 		}
