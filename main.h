@@ -172,6 +172,8 @@ typedef struct _textures
 	SDL_Texture *highscorestex;
 	SDL_Texture *pretotex;
 	SDL_Texture *brancotex;
+	SDL_Texture *lifebar;
+	SDL_Texture *howtopausetex;
 
 }Texture;
 

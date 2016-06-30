@@ -33,6 +33,9 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->arma2tex = IMG_LoadTexture(renderer, "images/powerups/2.png");
 	texture->arma3tex = IMG_LoadTexture(renderer, "images/powerups/3.png");
 
+	texture->lifebar = IMG_LoadTexture(renderer, "images/game/lifebar.png");
+	texture->howtopausetex = IMG_LoadTexture(renderer, "images/game/howtopause.png");
+
 	texture->playerw1tex = IMG_LoadTexture(renderer, "images/game/playerw1.png");
 	texture->playerw2tex = IMG_LoadTexture(renderer, "images/game/playerw2.png");
 	texture->playerw3tex = IMG_LoadTexture(renderer, "images/game/playerw3.png");
@@ -327,28 +330,30 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 	}
 
 	
-	if(gamestate->pause == 1)
-	{
-		SDL_RenderCopy(renderer, texture->pausetex,NULL ,NULL);
-	}
+	
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
 	if(gamestate->victory == 0)
 	{
-		SDL_Rect playerlifeRect = {100,50,gamestate->player.life , 10};
+
+
+
+		SDL_Rect playerlifeRect = {107,45,(gamestate->player.life *0.53) , 15};
 		SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
 		SDL_RenderFillRect(renderer, &playerlifeRect);
 
-		
+		SDL_Rect lifebarRect = {100,25,250, 40};
+		SDL_RenderCopy(renderer, texture->lifebar, NULL, &lifebarRect);
 
 		SDL_Rect scoretelaRect = {110,680,300 , 40};
 		SDL_Color branco = {255,255,255, SDL_ALPHA_OPAQUE};
 
-		char str[15];
-		sprintf(str, "Pontos : %05d", gamestate->player.score);
+		SDL_Rect howtopauseRect = {966,680,300, 32};
+		SDL_RenderCopy(renderer, texture->howtopausetex, NULL, &howtopauseRect);
 
-		
+		char str[15];
+		sprintf(str, "Pontos : %05d", gamestate->player.score);		
 
 		SDL_Surface* scoretelaSurface = TTF_RenderText_Solid(font.scoretela,str,branco);
 		
@@ -356,9 +361,17 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 
 		SDL_RenderCopy(renderer, texture->scoretela, NULL, &scoretelaRect);
 
+		if(gamestate->pause == 1)
+		{
+			SDL_RenderCopy(renderer, texture->pausetex,NULL ,NULL);
+		}
+
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
 		SDL_RenderPresent(renderer);
 		SDL_RenderClear(renderer);    
+
+
 	}
 
 }

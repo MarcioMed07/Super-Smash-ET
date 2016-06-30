@@ -240,7 +240,7 @@ int main(int argc, char const *argv[])
 					int go = 0;
 
 				    int historiaW = 1366;
-				    int historiaH = 2000;
+				    int historiaH = 1691;
 				    int rollup = 768;
 
 				    SDL_Rect historiaRect;				    
@@ -859,7 +859,7 @@ void init(Gamestate *gamestate)
     gamestate->player.h = 92;
     gamestate->player.x = gamestate->ScreenW/2 - gamestate->player.w/2 +1;
     gamestate->player.y = gamestate->ScreenH/2 - gamestate->player.h/2 ;
-    gamestate->player.life = 450;
+    gamestate->player.life = 500;
     gamestate->player.score = 0;
     gamestate->player.speed = 4;
     gamestate->playerup = 0;
@@ -1538,7 +1538,7 @@ void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Ga
     int go = 0;
 
     int historiaW = 1366;
-    int historiaH = 2000;
+    int historiaH = 1691;
     int rollup = 768;
 
     SDL_Rect historiaRect;
