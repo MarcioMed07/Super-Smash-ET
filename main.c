@@ -31,8 +31,8 @@ void audioinit()
 	Mix_OpenAudio(11025, MIX_DEFAULT_FORMAT, 1, 4096);
 	Mix_VolumeMusic(128);
 
-	music.menu = Mix_LoadMUS("sounds/menu.mp3");
-	music.boss = Mix_LoadMUS("sounds/boss.mp3");
+	music.menu = Mix_LoadMUS("sounds/menu.wav");
+	music.boss = Mix_LoadMUS("sounds/boss.wav");
 	music.game = Mix_LoadMUS("sounds/game.mp3");
 	music.lose = Mix_LoadMUS("sounds/lose.mp3");
 	music.win = Mix_LoadMUS("sounds/win.mp3");
@@ -55,7 +55,7 @@ int main(int argc, char const *argv[])
 	
 	audioinit();
 	
-	
+	array.n = 0;
 	
 
 	APPSTATE state = OPENING;
@@ -66,6 +66,9 @@ int main(int argc, char const *argv[])
 	Gamestate gamestate;
 	SDL_Window *window = NULL ; 
 	SDL_Renderer *renderer = NULL ;
+
+	gamestate.player.name[0] = '\0';
+	gamestate.player.score = 0;
 
 	
 
@@ -82,6 +85,7 @@ int main(int argc, char const *argv[])
 	{
 		SDL_Event event;
 
+
 			
 			switch(state)
 			{
@@ -95,6 +99,7 @@ int main(int argc, char const *argv[])
 				}
 				case MENU:
 				{
+					if(!Mix_PlayingMusic())
 					Mix_FadeInMusic(music.menu, -1, 500);
 					gamestate.menuroll = 0;
 					fadeinmenu(&window,&renderer);
@@ -129,10 +134,11 @@ int main(int argc, char const *argv[])
 							state = OPTIONS;
 							break;
 						case 4: 
+							Mix_FadeOutMusic(200);
 							state = EXIT;
 							break;
 					}
-					Mix_FadeOutMusic(500);
+					//Mix_FadeOutMusic(500);
 					fadeoutmenu(&window,&renderer);
 					
 
@@ -152,9 +158,12 @@ int main(int argc, char const *argv[])
 				case HIGHSCORE:
 				{
 					int decide = 0;
+
+					
+
 					while(decide == 0)
 					{
-						highscores(&window,&renderer);
+						highscores(&window,&renderer,&gamestate);
 						decide = recebeImput(&event,&gamestate,&state);
 					}
 					break;
@@ -171,6 +180,7 @@ int main(int argc, char const *argv[])
 				}
 				case NEWGAME:
 				{
+					Mix_FadeOutMusic(200);
 					gamestate.intro = 1;
 					gameintro(&window,&renderer,&event,&gamestate,&state);
 					Mix_FadeInMusic(music.game, -1, 500);
@@ -270,6 +280,7 @@ int main(int argc, char const *argv[])
 						go = recebeImput(&event,&gamestate,&state);
 
 						rollup -= 1;
+						SDL_Delay(10);
 
 						SDL_RenderPresent(renderer);
 						SDL_RenderClear(renderer);
@@ -280,6 +291,8 @@ int main(int argc, char const *argv[])
 					
 					SDL_RenderCopy(renderer, texture.wintex,NULL, 0);
 					SDL_RenderPresent(renderer);
+
+
 
 					SDL_Delay(1000);
 					SDL_RenderClear(renderer); 
@@ -295,7 +308,7 @@ int main(int argc, char const *argv[])
 				}
 				case GAMEOVERLOSE:
 				{
-					Mix_FadeInMusic(music.lose, -1, 2000);
+					Mix_FadeInMusic(music.lose, -1, 200);
 
 					int decide = 0;
 
@@ -311,52 +324,90 @@ int main(int argc, char const *argv[])
 						SDL_SetTextureAlphaMod(texture.losetex,opacidade);
 						SDL_RenderCopy(renderer, texture.losetex,NULL, 0);
 						opacidade += 1;	
-						SDL_Delay(20);
+						SDL_Delay(5);
 						
 						SDL_RenderPresent(renderer);
 						 
 					}
 
-					SDL_Delay(500);
+					
+
+					char *nome_arquivo = "recordes.dat";
+
+					if((arquivos.p_arquivo = fopen(nome_arquivo, "r")) != NULL)
+				    {
+				        fread(&array, sizeof(ARRAY), 1, arquivos.p_arquivo);
+				        fclose(arquivos.p_arquivo);
+				    }
+
+					RECORDE rec1;
+
+					SDL_Color branco = {255,255,255, SDL_ALPHA_OPAQUE};
+
+					int done = 0;
+
+					SDL_StartTextInput();
+
+					while(done == 0)
+					{
+						done = recebeImput(&event,&gamestate,&state);
+
+						SDL_RenderCopy(renderer, texture.namescreentex,NULL, 0);
+
+						SDL_Rect scoretelaRect = {(1366/2) - 90,200,180 , 80};						
+						char playerscore[15];
+						sprintf(playerscore, "%05d", gamestate.player.score);	
+						SDL_Surface* scoretelaSurface = TTF_RenderText_Solid(font.scoretela,playerscore,branco);		
+						texture.scoretela = SDL_CreateTextureFromSurface( renderer, scoretelaSurface );	
+						SDL_FreeSurface(scoretelaSurface);
+						SDL_RenderCopy(renderer, texture.scoretela, NULL, &scoretelaRect); 
+						
+
+						SDL_Rect insertnameRect = {(1366/2)-(strlen(gamestate.player.name)*15/2), 400, 15 * strlen(gamestate.player.name)  , 40};													
+						SDL_Surface* insertnameSurface = TTF_RenderText_Solid(font.scoretela,gamestate.player.name,branco);	
+						texture.insertnametex = SDL_CreateTextureFromSurface( renderer, insertnameSurface );	
+						SDL_FreeSurface(insertnameSurface);
+						SDL_RenderCopy(renderer, texture.insertnametex, NULL, &insertnameRect);
+						SDL_RenderPresent(renderer);
+						SDL_RenderClear(renderer); 
+					}
+
+					if(done < 0)
+					{
+						break;
+					}
+
+					SDL_StopTextInput();
+    				//scanf("%s",gamestate.player.name);
+
+				    strcpy(rec1.nome, gamestate.player.name);
+
+				    //rec1.nome[strlen(rec1.nome) - 1] = '\0';
+
+				   	rec1.pontuacao = gamestate.player.score;
+
+				    inserehighscore(&array, rec1);
+
+				    
+
+				     if((arquivos.p_arquivo = fopen(nome_arquivo, "w")) == NULL)
+				    {
+				        perror("fopen:");
+				        return 0;
+				    }
+
+				    fwrite(&array, sizeof(ARRAY), 1, arquivos.p_arquivo);
+				    fclose(arquivos.p_arquivo);
+
+				    
+
+					SDL_Delay(100);
 					SDL_RenderClear(renderer);
 
 					state = HIGHSCORE;
 
 
-					// char *composition;
-					// Sint32 cursor;
-					// Sint32 selection_len;
-
-					// int pronto = 0;
-					// SDL_StartTextInput();
-					//     while (pronto == 0) 
-					//     {
-					//         SDL_Event event;
-					//         if (SDL_PollEvent(&event)) 
-					//         {
-					//             switch (event.type) 
-					//             {
-					//                 case SDL_QUIT:
-					                    
-					//                     pronto = 1;
-					//                     break;
-					//                 case SDL_TEXTINPUT:
-					                    
-					//                     strcat(gamestate.player.name, event.text.text);
-					//                     break;
-					//                 case SDL_TEXTEDITING:
-					                    
-					//                     composition = event.edit.text;
-					//                     cursor = event.edit.start;
-					//                     selection_len = event.edit.length;
-					//                     break;
-
-					//             }
-					//         }
-					//     }
-					//    SDL_StopTextInput();
-
-					//    printf("%s\n",gamestate.player.name );
+					
 
 
 
@@ -371,6 +422,16 @@ int main(int argc, char const *argv[])
 				{
 					Mix_FreeMusic(music.menu);
 					gameended();
+
+
+					SDL_DestroyRenderer(renderer);
+
+					if(renderer != NULL)
+					{
+						puts("erro ao destruir");
+						SDL_GetError();
+					}
+
 					closing(&window,&renderer);
 					go = 0;
 					return 0;
@@ -875,6 +936,7 @@ void init(Gamestate *gamestate)
     gamestate->playerright = 0;
     gamestate->player.arma = 1;
     gamestate->player.damageplus = 0;
+    
 
     gamestate->player.down = 0;
 	gamestate->player.up = 0;
@@ -1008,7 +1070,7 @@ void init(Gamestate *gamestate)
 			    gamestate->sala[gamestate->salaatual].portaup.y = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.w = 0;
 			    gamestate->sala[gamestate->salaatual].portaup.h = 0;
-			    gamestate->sala[gamestate->salaatual].portadown.x = 460;
+			    gamestate->sala[gamestate->salaatual].portadown.x = 466;
 			    gamestate->sala[gamestate->salaatual].portadown.y = 669;
 			    gamestate->sala[gamestate->salaatual].portadown.w = 360;
 			    gamestate->sala[gamestate->salaatual].portadown.h = 100;
@@ -1049,8 +1111,8 @@ void init(Gamestate *gamestate)
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemyhardleft = 10;
 			    	gamestate->sala[gamestate->salaatual].wave[i].enemybossleft = 0;
 			    }
-			    gamestate->sala[gamestate->salaatual].portaup.x = 464;
-			    gamestate->sala[gamestate->salaatual].portaup.y = 0;
+			    gamestate->sala[gamestate->salaatual].portaup.x = 470;
+			    gamestate->sala[gamestate->salaatual].portaup.y = -2;
 			    gamestate->sala[gamestate->salaatual].portaup.w = 356;
 			    gamestate->sala[gamestate->salaatual].portaup.h = 100;
 			    gamestate->sala[gamestate->salaatual].portadown.x = 0;
@@ -1219,8 +1281,8 @@ void init(Gamestate *gamestate)
 
 void closing(SDL_Window **window,SDL_Renderer **renderer)
 {
-	
-	SDL_DestroyRenderer(*renderer);
+
+
     SDL_DestroyWindow(*window);
     Mix_CloseAudio();
     Mix_Quit();
@@ -1445,46 +1507,48 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 						case SDL_QUIT:					
 							*state = EXIT;				
 							break;
-						case SDL_KEYDOWN:
-							if(SDLK_ESCAPE == event->key.keysym.sym)
-							{
-								*state = MENU;
-								return 1;
-																		
-							}
-							if(SDLK_r == event->key.keysym.sym)
-							{
-								*state = NEWGAME;
-								return 1;
-							}
-							break;
+						
 					}
 				}
 					break;
 
 				case GAMEOVERLOSE:
 				{
+						switch (event->type) 
+						{
+							case SDL_QUIT:	
+								
+								*state = EXIT;	
+								return -1;
+
+								break;
+
+							case SDL_TEXTINPUT :
+
+								if(strlen(gamestate->player.name) <= 11)
+								{
+									strcat(gamestate->player.name, event->text.text);
+								}
+								
+								
+								return 0;
+								break;
+
+							case SDL_KEYDOWN :
+								if(SDLK_BACKSPACE == event->key.keysym.sym) 
+						        {
+						        	gamestate->player.name[strlen(gamestate->player.name) - 1] = '\0';
+						            return 0;
+						      	}
+
+								if(SDLK_RETURN == event->key.keysym.sym) 
+						        {
+						        	
+						            return 1;
+						      	}
+						        break;						
+						}
 					
-					switch (event->type) 
-					{
-						case SDL_QUIT:					
-							*state = EXIT;				
-							break;
-						case SDL_KEYDOWN:
-							if(SDLK_ESCAPE == event->key.keysym.sym)
-							{
-								*state = MENU;
-								return 1;
-																		
-							}
-							if(SDLK_r == event->key.keysym.sym)
-							{
-								*state = NEWGAME;
-								return 1;
-							}
-							break;
-					}
-				
 					break;
 				}
 				case EXIT:
@@ -1529,7 +1593,7 @@ void initwindow(SDL_Window **window,SDL_Renderer **renderer)
         {
             *renderer = SDL_CreateRenderer(	*window,
             								-1,
-            								SDL_RENDERER_ACCELERATED);
+            								0);
         	SDL_RenderSetLogicalSize(*renderer, ScreenW, ScreenH);
         }
     }
@@ -1567,7 +1631,7 @@ void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Ga
 		go = recebeImput(event,gamestate,state);
 
 		rollup -= 1;
-		SDL_Delay(5);
+		SDL_Delay(20);
 
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);

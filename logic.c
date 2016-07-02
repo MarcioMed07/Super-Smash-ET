@@ -1020,8 +1020,8 @@ void createlife(int x,int y)
 				lifeplus[j].amount = 10 + (rand() % 10);
 				lifeplus[j].x = x;
 				lifeplus[j].y = y;
-				lifeplus[j].w = 20;
-				lifeplus[j].h = 20;
+				lifeplus[j].w = 40;
+				lifeplus[j].h = 40;
 				break;
 			}		
 		}
@@ -1045,8 +1045,8 @@ void createspeed(int x,int y)
 			{
 				speedplus[j].x = x;
 				speedplus[j].y = y;
-				speedplus[j].w = 20;
-				speedplus[j].h = 20;
+				speedplus[j].w = 40;
+				speedplus[j].h = 40;
 				break;
 			}
 		}
@@ -1068,8 +1068,8 @@ void createdamage(int x,int y)
 			{
 				damageplus[j].x = x;
 				damageplus[j].y = y;
-				damageplus[j].w = 20;
-				damageplus[j].h = 20;
+				damageplus[j].w = 40;
+				damageplus[j].h = 40;
 				break;
 			}
 		}
@@ -1091,8 +1091,8 @@ void createarma1(int x,int y)
 			{
 				arma1[j].x = x;
 				arma1[j].y = y;
-				arma1[j].w = 20;
-				arma1[j].h = 20;
+				arma1[j].w = 40;
+				arma1[j].h = 40;
 				break;
 			}
 		}
@@ -1114,8 +1114,8 @@ void createarma2(int x,int y)
 			{				
 				arma2[j].x = x;
 				arma2[j].y = y;
-				arma2[j].w = 20;
-				arma2[j].h = 20;
+				arma2[j].w = 40;
+				arma2[j].h = 40;
 				break;
 			}
 		}
@@ -1137,8 +1137,8 @@ void createarma3(int x,int y)
 			{
 				arma3[j].x = x;
 				arma3[j].y = y;
-				arma3[j].w = 20;
-				arma3[j].h = 20;
+				arma3[j].w = 40;
+				arma3[j].h = 40;
 				break;
 			}
 		}

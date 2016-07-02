@@ -3,6 +3,16 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+#define MAX_ARRAY 10
+#define MAX_NOME 50
+
+
+
+
 
 typedef enum _APPSTATE{
 	OPENING,
@@ -115,7 +125,7 @@ typedef struct _player
 	float x,y;
 	float w,h;
 	int life;
-	char name[20];
+	char name[200];
 	int score;
 	int speed;
 	int up,down,left,right;
@@ -170,12 +180,20 @@ typedef struct _textures
 	SDL_Texture *menurolltex;
 	SDL_Texture *creditstex;
 	SDL_Texture *highscorestex;
+	SDL_Texture *highscoresbgtex;
 	SDL_Texture *pretotex;
 	SDL_Texture *brancotex;
 	SDL_Texture *lifebar;
 	SDL_Texture *howtopausetex;
+	SDL_Texture *insertnametex;
+	SDL_Texture *namescreentex;
 
 }Texture;
+
+typedef struct _arquivos
+{
+	FILE *p_arquivo;
+}Arquivos;
 
 typedef struct _bullet
 {
@@ -250,14 +268,41 @@ typedef struct _sounds
 	
 }Sounds;
 
+typedef struct
+{
+    char nome[MAX_NOME];
+    int pontuacao;
+} RECORDE;
+
+typedef struct
+{
+    RECORDE vetor[MAX_ARRAY];
+    int n;
+
+} ARRAY;
+
 Musica music;
 
 Sounds sound;
 
 Texture texture;
 
+Arquivos arquivos;
+
 Fontes font;
 
 void loadimages(SDL_Renderer* renderer,Texture *texture);
 
 void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture);
+
+RECORDE elemento(ARRAY *, int);
+int tamanho(ARRAY *);
+
+void inserehighscore(ARRAY *, RECORDE);
+
+void remove_posicao(ARRAY *, int);
+void imprime(ARRAY *,SDL_Renderer**,Gamestate *);
+void sort(ARRAY *);
+void bubble_sort(RECORDE *, int);
+
+ARRAY array;

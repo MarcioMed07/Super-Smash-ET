@@ -54,7 +54,8 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->menutex = IMG_LoadTexture(renderer, "images/menu/menu.png");
 	texture->menurolltex = IMG_LoadTexture(renderer, "images/menu/roll.png");
 	texture->creditstex = IMG_LoadTexture(renderer, "images/menu/credits.png");
-	texture->highscorestex = IMG_LoadTexture(renderer, "images/menu/highscores.png");
+	texture->highscoresbgtex = IMG_LoadTexture(renderer, "images/menu/highscores.png");
+	texture->namescreentex = IMG_LoadTexture(renderer, "images/menu/insertname.png");
 
 
 
@@ -102,42 +103,7 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		}
 	}
 	
-	int i;
-	for(i = 0; i< MAXENEMIES; i++)
-	{
-		if(enemy[i].on == 1)
-		{
-			SDL_Rect enemyRect = {enemy[i].x,enemy[i].y,enemy[i].w,enemy[i].h};
-			SDL_Rect enemydrawRect = {0,0,enemy[i].w,enemy[i].h};
-			SDL_RenderCopyEx(renderer, texture->enemytex,&enemydrawRect,&enemyRect,enemy[i].angulo,NULL,SDL_FLIP_HORIZONTAL);
-		}
-	}
-
-	int m;
-	for(m = 0; m< MAXENEMIES; m++)
-	{
-		if(enemymedium[m].on == 1)
-		{
-			SDL_Rect enemymediumRect = {enemymedium[m].x,enemymedium[m].y,enemymedium[m].w,enemymedium[m].h};
-			SDL_Rect enemymediumdrawRect = {0,0,enemymedium[m].w,enemymedium[m].h};
-			SDL_RenderCopyEx(renderer, texture->enemymediumtex,&enemymediumdrawRect,&enemymediumRect,enemymedium[m].angulo,NULL,SDL_FLIP_HORIZONTAL);
-		}
-	}
-
-	int b;
-	for(b = 0; b< MAXENEMIES; b++)
-	{
-		if(enemyboss[b].on == 1)
-		{
-			SDL_Rect enemybossRect = {enemyboss[b].x,enemyboss[b].y,enemyboss[b].w,enemyboss[b].h};
-			SDL_Rect enemybossdrawRect = {0,0,enemyboss[b].w/2,enemyboss[b].h/2};
-			SDL_RenderCopyEx(renderer, texture->enemybosstex,&enemybossdrawRect,&enemybossRect,enemyboss[b].angulo,NULL,SDL_FLIP_HORIZONTAL);
-
-			SDL_Rect bosslifeRect = {1266 - enemyboss[b].life,50,enemyboss[b].life , 10};
-			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-			SDL_RenderFillRect(renderer, &bosslifeRect);
-		}
-	}
+	
 
 	int l;
 	for(l = 0; l< MAXPOWERUP; l++)
@@ -196,6 +162,43 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		{
 			SDL_Rect arma3Rect = {arma3[tres].x,arma3[tres].y,arma3[tres].w,arma3[tres].h};
 			SDL_RenderCopy(renderer, texture->arma3tex,NULL,&arma3Rect);
+		}
+	}
+
+	int i;
+	for(i = 0; i< MAXENEMIES; i++)
+	{
+		if(enemy[i].on == 1)
+		{
+			SDL_Rect enemyRect = {enemy[i].x,enemy[i].y,enemy[i].w,enemy[i].h};
+			SDL_Rect enemydrawRect = {0,0,enemy[i].w,enemy[i].h};
+			SDL_RenderCopyEx(renderer, texture->enemytex,&enemydrawRect,&enemyRect,enemy[i].angulo,NULL,SDL_FLIP_HORIZONTAL);
+		}
+	}
+
+	int m;
+	for(m = 0; m< MAXENEMIES; m++)
+	{
+		if(enemymedium[m].on == 1)
+		{
+			SDL_Rect enemymediumRect = {enemymedium[m].x,enemymedium[m].y,enemymedium[m].w,enemymedium[m].h};
+			SDL_Rect enemymediumdrawRect = {0,0,enemymedium[m].w,enemymedium[m].h};
+			SDL_RenderCopyEx(renderer, texture->enemymediumtex,&enemymediumdrawRect,&enemymediumRect,enemymedium[m].angulo,NULL,SDL_FLIP_HORIZONTAL);
+		}
+	}
+
+	int b;
+	for(b = 0; b< MAXENEMIES; b++)
+	{
+		if(enemyboss[b].on == 1)
+		{
+			SDL_Rect enemybossRect = {enemyboss[b].x,enemyboss[b].y,enemyboss[b].w,enemyboss[b].h};
+			SDL_Rect enemybossdrawRect = {0,0,enemyboss[b].w/2,enemyboss[b].h/2};
+			SDL_RenderCopyEx(renderer, texture->enemybosstex,&enemybossdrawRect,&enemybossRect,enemyboss[b].angulo,NULL,SDL_FLIP_HORIZONTAL);
+
+			SDL_Rect bosslifeRect = {1266 - enemyboss[b].life,50,enemyboss[b].life , 10};
+			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+			SDL_RenderFillRect(renderer, &bosslifeRect);
 		}
 	}
 
@@ -346,21 +349,16 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		SDL_Rect lifebarRect = {100,25,250, 40};
 		SDL_RenderCopy(renderer, texture->lifebar, NULL, &lifebarRect);
 
-		SDL_Rect scoretelaRect = {110,680,300 , 40};
-		SDL_Color branco = {255,255,255, SDL_ALPHA_OPAQUE};
-
 		SDL_Rect howtopauseRect = {966,680,300, 32};
 		SDL_RenderCopy(renderer, texture->howtopausetex, NULL, &howtopauseRect);
 
-		char str[15];
-		sprintf(str, "Pontos : %05d", gamestate->player.score);		
-
-		SDL_Surface* scoretelaSurface = TTF_RenderText_Solid(font.scoretela,str,branco);
-		
+		SDL_Rect scoretelaRect = {110,680,300 , 40};
+		SDL_Color branco = {255,255,255, SDL_ALPHA_OPAQUE};
+		char playerscore[15];
+		sprintf(playerscore, "Pjgkgjjg : %05d", gamestate->player.score);	
+		SDL_Surface* scoretelaSurface = TTF_RenderText_Solid(font.scoretela,playerscore,branco);		
 		texture->scoretela = SDL_CreateTextureFromSurface( renderer, scoretelaSurface );	
-
 		SDL_FreeSurface(scoretelaSurface);
-
 		SDL_RenderCopy(renderer, texture->scoretela, NULL, &scoretelaRect);
 
 		if(gamestate->pause == 1)
