@@ -30,6 +30,8 @@ void audioinit()
 {
 	Mix_OpenAudio(11025, MIX_DEFAULT_FORMAT, 1, 4096);
 	Mix_VolumeMusic(128);
+	Mix_Volume(-1,128);
+	Mix_AllocateChannels(30);
 
 	music.menu = Mix_LoadMUS("sounds/menu.wav");
 	music.boss = Mix_LoadMUS("sounds/boss.wav");
@@ -43,7 +45,7 @@ void audioinit()
 	sound.life = Mix_LoadWAV("sounds/life.wav");
 	sound.speed = Mix_LoadWAV("sounds/speed.wav");
 	sound.playerdano = Mix_LoadWAV("sounds/playerdano.wav");
-	sound.shoot = Mix_LoadWAV("sounds/shoot.wav");
+	sound.reload = Mix_LoadWAV("sounds/reload.wav");
 	sound.enemydano = Mix_LoadWAV("sounds/enemydano.wav");
 	
 }
@@ -936,6 +938,8 @@ void init(Gamestate *gamestate)
     gamestate->playerright = 0;
     gamestate->player.arma = 1;
     gamestate->player.damageplus = 0;
+    gamestate->player.frame = 0;
+
     
 
     gamestate->player.down = 0;
@@ -1228,6 +1232,7 @@ void init(Gamestate *gamestate)
 
     gamestate->rof = 0;
 	gamestate->rob = 60;
+	gamestate->danocolldown = 0;
 
 
     gamestate->mousex = 600;

@@ -132,6 +132,7 @@ typedef struct _player
 	double angulo;
 	int arma;
 	int damageplus;
+	int frame;
 } Player;
 
 typedef struct _parede
@@ -151,6 +152,9 @@ typedef struct _textures
 	SDL_Texture *playerw1tex;
 	SDL_Texture	*playerw2tex;
 	SDL_Texture	*playerw3tex;
+	SDL_Texture *playerw1hurttex;
+	SDL_Texture	*playerw2hurttex;
+	SDL_Texture	*playerw3hurttex;
 	SDL_Texture *mousetex;
 	SDL_Texture *bullettex;
 	SDL_Texture *enemytex;
@@ -240,6 +244,7 @@ typedef struct _gamestate
 	int victory;
 	int menuroll;
 	int intro;
+	int danocolldown;
 	
 }Gamestate;
 
@@ -263,7 +268,7 @@ typedef struct _sounds
 	Mix_Chunk *life;
 	Mix_Chunk *speed;
 	Mix_Chunk *playerdano;
-	Mix_Chunk *shoot;
+	Mix_Chunk *reload;
 	Mix_Chunk *enemydano;
 	
 }Sounds;

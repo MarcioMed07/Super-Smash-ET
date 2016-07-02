@@ -136,6 +136,9 @@ void logica(Gamestate *gamestate)
 
 	if(gamestate->rob > 0)
 		gamestate->rob --;
+	if(gamestate->danocolldown > 0)
+		gamestate->danocolldown--;
+
 	
    
 }
@@ -210,19 +213,24 @@ void createbullet(Gamestate *gamestate)
 				{
 					bullet[j].speed = 20;
 					gamestate->rof = 20;
+					Mix_PlayChannel(-1, sound.arma1, 0);
 				}
 
 				if(gamestate->player.arma == 2)
 				{
 					bullet[j].speed = 25;
 					gamestate->rof = 10;
+					Mix_PlayChannel(-1, sound.arma2, 0);
 				}
 
 				if(gamestate->player.arma == 3)
 				{
 					bullet[j].speed = 15;
 					gamestate->rof = 40;
+					Mix_PlayChannel(-1, sound.arma3, 0);
 				}
+
+
 
 				return;
 			}			
@@ -503,10 +511,15 @@ void updateenemy(Gamestate *gamestate)
 			int Ey = enemyRect.y;
 			int EY = enemyRect.y + enemyRect.h;
 
-			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)))
+			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py))  )
 			{
 				enemy[i].move = 0;
-				gamestate->player.life = gamestate->player.life - 1;
+				if(gamestate->danocolldown == 0)
+				{
+					gamestate->player.life = gamestate->player.life - 10;
+					gamestate->danocolldown = 100;
+					Mix_PlayChannel(-1, sound.playerdano, 0);
+				}
 			}
 			else
 			{
@@ -717,8 +730,14 @@ void updateenemymedium(Gamestate *gamestate)
 
 			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)))
 			{
+				if(gamestate->danocolldown == 0)
+				{
+					gamestate->danocolldown = 100;
+					Mix_PlayChannel(-1, sound.playerdano, 0);
+					gamestate->player.life = gamestate->player.life - 20;
+				}
 				enemymedium[i].move = 0;
-				gamestate->player.life = gamestate->player.life - 2;
+				
 			}
 			else
 			{
@@ -906,7 +925,13 @@ void updateboss(Gamestate *gamestate)
 			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)))
 			{
 				enemyboss[i].move = 0;
-				gamestate->player.life = gamestate->player.life - 5;
+
+				if(gamestate->danocolldown == 0)
+				{
+					gamestate->danocolldown = 100;
+					Mix_PlayChannel(-1, sound.playerdano, 0);
+					gamestate->player.life = gamestate->player.life - 50;
+				}
 			}
 			else
 			{
@@ -1176,6 +1201,7 @@ void updatelife(Gamestate *gamestate)
 			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)) && lifeplus[i].on == 1)
 			{
 				lifeplus[i].on = 0;
+				Mix_PlayChannel(-1, sound.life, 0);
 				
 
 				gamestate->player.life = gamestate->player.life + lifeplus[i].amount;
@@ -1218,6 +1244,7 @@ void updatespeed(Gamestate *gamestate)
 			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)) && speedplus[i].on == 1)
 			{
 				speedplus[i].on = 0;
+				Mix_PlayChannel(-1, sound.speed, 0);
 
 				gamestate->player.speed = gamestate->player.speed + 2;
 				
@@ -1257,6 +1284,7 @@ void updatedamage(Gamestate *gamestate)
 			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)) && damageplus[i].on == 1)
 			{
 				damageplus[i].on = 0;
+				Mix_PlayChannel(-1, sound.damage, 0);
 
 				gamestate->player.damageplus = gamestate->player.damageplus + 1;
 				
@@ -1296,6 +1324,7 @@ void updatearma1(Gamestate *gamestate)
 			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)) && arma1[i].on == 1)
 			{
 				arma1[i].on = 0;
+				Mix_PlayChannel(-1, sound.reload, 0);
 
 				gamestate->player.arma = 1;
 				
@@ -1335,6 +1364,7 @@ void updatearma2(Gamestate *gamestate)
 			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)) && arma2[i].on == 1)
 			{
 				arma2[i].on = 0;
+				Mix_PlayChannel(-1, sound.reload, 0);
 
 				gamestate->player.arma = 2;
 				
@@ -1374,6 +1404,7 @@ void updatearma3(Gamestate *gamestate)
 			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)) && arma3[i].on == 1)
 			{
 				arma3[i].on = 0;
+				Mix_PlayChannel(-1, sound.reload, 0);
 
 				gamestate->player.arma = 3;
 				

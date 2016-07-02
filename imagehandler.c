@@ -39,6 +39,9 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->playerw1tex = IMG_LoadTexture(renderer, "images/game/playerw1.png");
 	texture->playerw2tex = IMG_LoadTexture(renderer, "images/game/playerw2.png");
 	texture->playerw3tex = IMG_LoadTexture(renderer, "images/game/playerw3.png");
+	texture->playerw1hurttex = IMG_LoadTexture(renderer, "images/game/playerw1hurt.png");
+	texture->playerw2hurttex = IMG_LoadTexture(renderer, "images/game/playerw2hurt.png");
+	texture->playerw3hurttex = IMG_LoadTexture(renderer, "images/game/playerw3hurt.png");
 
 
 	texture->gameintrotex = IMG_LoadTexture(renderer, "images/game/historia.png");
@@ -273,24 +276,86 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		gamestate->player.angulo = 225;
 	}
 
+	SDL_Rect playerdrawRect[6];
 
-	SDL_Rect playerdrawRect = {0,0,gamestate->player.w,gamestate->player.h};
-	if(gamestate->player.arma == 1)
+	int a;
+
+	
+
+	for(a = 0; a < 6; a++)
 	{
-		SDL_RenderCopyEx(renderer, texture->playerw1tex,&playerdrawRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-		
-	}
-	if(gamestate->player.arma == 2)
-	{
-		SDL_RenderCopyEx(renderer, texture->playerw2tex,&playerdrawRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-		
-	}
-	if(gamestate->player.arma == 3)
-	{
-		SDL_RenderCopyEx(renderer, texture->playerw3tex,&playerdrawRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-		
+		playerdrawRect[a].x = a * gamestate->player.w + 3;
+		playerdrawRect[a].y = 0;
+		playerdrawRect[a].w = gamestate->player.w;
+		playerdrawRect[a].h = gamestate->player.h;
 	}
 
+	SDL_Rect currentplayerframeRect;
+
+	if(gamestate->playerup == 1 || gamestate->playerdown == 1 || gamestate->playerleft == 1 || gamestate->playerright == 1)
+	{
+		currentplayerframeRect = playerdrawRect[ gamestate->player.frame / 6 ];		
+	}
+	else
+	{
+		currentplayerframeRect = playerdrawRect[5 ];
+	}
+
+
+	if(gamestate->danocolldown > 0)
+	{
+		if(gamestate->danocolldown % 30 > 15)
+		{
+			if(gamestate->player.arma == 1)
+			{
+				SDL_RenderCopyEx(renderer, texture->playerw1tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
+			}
+			if(gamestate->player.arma == 2)
+			{
+				SDL_RenderCopyEx(renderer, texture->playerw2tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
+			}
+			if(gamestate->player.arma == 3)
+			{
+				SDL_RenderCopyEx(renderer, texture->playerw3tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
+			}
+		}
+	}
+
+	if(gamestate->danocolldown == 0)
+	{
+		if(gamestate->player.arma == 1)
+		{
+			SDL_RenderCopyEx(renderer, texture->playerw1tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+			
+		}
+		if(gamestate->player.arma == 2)
+		{
+			SDL_RenderCopyEx(renderer, texture->playerw2tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+			
+		}
+		if(gamestate->player.arma == 3)
+		{
+			SDL_RenderCopyEx(renderer, texture->playerw3tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+			
+		}
+	}
+
+	
+
+	gamestate->player.frame++;
+
+	printf("dano cooldown %d\n", gamestate->danocolldown);
+	
+
+	if(gamestate->player.frame / 6 >= 6)
+	{
+		gamestate->player.frame = 0;	
+	}
+
+	
 	
 	
 
