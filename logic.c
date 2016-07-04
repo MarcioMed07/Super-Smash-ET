@@ -109,6 +109,33 @@ void logica(Gamestate *gamestate)
 				
 		}
 
+		if(gamestate->player.bombbar >= 100)
+		{
+			gamestate->player.bombbar = 100;
+		}
+
+
+			
+		if(gamestate->player.bombpressed == 1 && gamestate->player.bombbar >= 100)
+		{
+			for(i = 0;  i < MAXENEMIES; i++)
+			{
+				if(enemy[i].on == 1)
+				{
+					enemy[i].life -= (1000+ gamestate->player.damageplus) ;
+						
+						
+				}
+				if(enemymedium[i].on == 1)
+				{
+					enemymedium[i].life -= (1000+ gamestate->player.damageplus) ;
+				}
+			}
+			gamestate->player.bombbar = 0;
+		}
+	
+
+
 	updateenemy(gamestate);
 	updateenemymedium(gamestate);
 	updateboss(gamestate);
@@ -119,6 +146,7 @@ void logica(Gamestate *gamestate)
 	updatearma1(gamestate);
 	updatearma2(gamestate);
 	updatearma3(gamestate);
+	updateenemybullet(gamestate);
 
 	if(gamestate->player.life > 450)
 	{
@@ -130,6 +158,19 @@ void logica(Gamestate *gamestate)
 		gamestate->player.speed = 8;
 	}
 
+	for(i = 0; i<MAXENEMIES; i++)
+	{
+		if(enemymedium[i].rof > 0)
+		{
+			enemymedium[i].rof--;
+		}
+
+		
+		if(enemymedium[i].rof == 0 && enemymedium[i].on == 1)
+		{
+			createenemybullet(gamestate);
+		}
+	}
 
 	if(gamestate->rof > 0)
 		gamestate->rof --;
@@ -253,8 +294,18 @@ void updatebullet(Gamestate *gamestate)
 			int i;
 			for (i = 0; i < MAXENEMIES; i++)
 			{
+
 				if(enemy[i].on == 1)
 				{	
+
+					if(gamestate->player.bombpressed == 1 && gamestate->player.bombbar >= 100)
+					{
+						enemy[i].life -= (1000+ gamestate->player.damageplus) ;
+						enemymedium[i].life -= (1000 + gamestate->player.damageplus) ;
+						gamestate->player.bombbar = 0;
+					}
+
+
 					SDL_Rect enemyRect;
 
 					enemyRect.x = enemy[i].x;
@@ -511,15 +562,19 @@ void updateenemy(Gamestate *gamestate)
 			int Ey = enemyRect.y;
 			int EY = enemyRect.y + enemyRect.h;
 
-			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py))  )
+			
+				
+				
+			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)))
 			{
-				enemy[i].move = 0;
 				if(gamestate->danocolldown == 0)
 				{
-					gamestate->player.life = gamestate->player.life - 10;
 					gamestate->danocolldown = 100;
 					Mix_PlayChannel(-1, sound.playerdano, 0);
+					gamestate->player.life = gamestate->player.life - 50;
 				}
+				enemy[i].move = 0;
+				
 			}
 			else
 			{
@@ -622,7 +677,13 @@ void updateenemy(Gamestate *gamestate)
 				}
 				if(drop >= 30)
 				{
-					gamestate->player.score += 10;					
+					gamestate->player.score += 10;	
+						
+
+					if(gamestate->player.bombpressed == 0)
+					{	
+						gamestate->player.bombbar += 10;		
+					}
 				}
 
 				
@@ -739,7 +800,7 @@ void updateenemymedium(Gamestate *gamestate)
 				{
 					gamestate->danocolldown = 100;
 					Mix_PlayChannel(-1, sound.playerdano, 0);
-					gamestate->player.life = gamestate->player.life - 20;
+					gamestate->player.life = gamestate->player.life - 50;
 				}
 				enemymedium[i].move = 0;
 				
@@ -845,6 +906,10 @@ void updateenemymedium(Gamestate *gamestate)
 				if(drop >= 50)
 				{
 					gamestate->player.score += 10;
+					if(gamestate->player.bombpressed == 0)
+					{	
+						gamestate->player.bombbar += 10;		
+					}
 				}
 				enemymedium[i].on = 0;
 				enemymedium[i].dead = 1;
@@ -936,7 +1001,7 @@ void updateboss(Gamestate *gamestate)
 				{
 					gamestate->danocolldown = 100;
 					Mix_PlayChannel(-1, sound.playerdano, 0);
-					gamestate->player.life = gamestate->player.life - 50;
+					gamestate->player.life = gamestate->player.life - 100;
 				}
 			}
 			else
@@ -1442,5 +1507,211 @@ void updatearma3(Gamestate *gamestate)
 				
 			}
 		}
+	}
+}
+
+void createenemybullet(Gamestate *gamestate)
+{
+
+	int j;
+	int i;
+	
+
+	for (i = 0; i < MAXENEMIES; i++)
+	{
+		if(enemymedium[i].on == 1)
+		{
+			for (j = 0; j < MAXBULLETS; j++)
+			{
+			
+				if(enemybullet[j].on == 0)
+				{	
+
+					enemybullet[j].on = 1;
+					
+
+					if( enemymedium[i].angulo/45 == 8)
+					{
+						enemybullet[j].xinit = enemymedium[i].x + (enemymedium[i].w/2) ;
+						enemybullet[j].yinit = enemymedium[i].y;
+						enemybullet[j].direction = UP;				
+					}
+					if ( enemymedium[i].angulo/45 == 1 )
+					{
+						enemybullet[j].xinit = enemymedium[i].x + enemymedium[i].w;
+						enemybullet[j].yinit = enemymedium[i].y ;
+						enemybullet[j].direction = RIGHTUP;
+					}
+					if (enemymedium[i].angulo/45 == 2)
+					{
+							enemybullet[j].xinit = enemymedium[i].x + enemymedium[i].w;
+						enemybullet[j].yinit = enemymedium[i].y + (enemymedium[i].h/2) ;
+						enemybullet[j].direction = RIGHT;
+					}
+					if (enemymedium[i].angulo/45 == 3)
+					{
+						enemybullet[j].xinit = enemymedium[i].x + enemymedium[i].w;
+						enemybullet[j].yinit = enemymedium[i].y + enemymedium[i].h ;
+						enemybullet[j].direction = RIGHTDOWN;
+					}
+					if (enemymedium[i].angulo/45 == 4)
+					{
+						
+
+						enemybullet[j].xinit = enemymedium[i].x + (enemymedium[i].w/2);
+						enemybullet[j].yinit = enemymedium[i].y + enemymedium[i].h;
+						enemybullet[j].direction = DOWN;
+					}
+					if (enemymedium[i].angulo/45 == 5)
+					{
+						
+
+						enemybullet[j].xinit = enemymedium[i].x;
+						enemybullet[j].yinit = enemymedium[i].y + enemymedium[i].h ;
+		    			enemybullet[j].direction = LEFTDOWN;	
+					}
+					if (enemymedium[i].angulo/45 == 6)
+					{
+						
+
+						enemybullet[j].xinit = enemymedium[i].x;
+						enemybullet[j].yinit = enemymedium[i].y + (enemymedium[i].h/2) ;
+						enemybullet[j].direction = LEFT;	
+						
+					}
+					if (enemymedium[i].angulo/45 == 7)
+		    		{
+		    			enemybullet[j].xinit = enemymedium[i].x;
+						enemybullet[j].yinit = enemymedium[i].y;
+						enemybullet[j].direction = LEFTUP;
+
+		    			
+		    		}
+		    		enemybullet[j].x = enemybullet[j].xinit;
+					enemybullet[j].y = enemybullet[j].yinit;
+					
+
+					
+					enemybullet[j].speed = 10;
+					enemymedium[i].rof = 40;
+					Mix_PlayChannel(-1, sound.arma1, 0);
+					break;
+
+				}
+			}
+		}
+				
+	}
+}
+
+
+void updateenemybullet(Gamestate *gamestate)
+{
+
+	int j;
+	for (j = 0; j < MAXBULLETS; j++)
+	{
+		if(enemybullet[j].on == 1)
+		{
+			SDL_Rect enemybulletRect = {enemybullet[j].x,enemybullet[j].y,10,10};
+			SDL_Rect parederect = {	gamestate->parede.x,gamestate->parede.y,
+									gamestate->parede.w,gamestate->parede.h};
+
+
+			SDL_Rect playerRect = {	gamestate->player.x,gamestate->player.y,
+							gamestate->player.w,gamestate->player.h};
+			
+
+			
+			int Px = playerRect.x;
+			int PX = playerRect.x + playerRect.w;
+			int Py = playerRect.y;
+			int PY = playerRect.y + playerRect.h;
+
+			int Ex = enemybulletRect.x;
+			int EX = enemybulletRect.x + enemybulletRect.w;
+			int Ey = enemybulletRect.y;
+			int EY = enemybulletRect.y + enemybulletRect.h;
+
+			
+				
+				
+			if(!((PX<Ex) || (EX<Px) || (PY < Ey) || (EY < Py)))
+			{
+				if(gamestate->danocolldown == 0)
+				{
+					gamestate->danocolldown = 100;
+					Mix_PlayChannel(-1, sound.playerdano, 0);
+					gamestate->player.life = gamestate->player.life - 10;
+				}
+				
+				
+			}
+			
+
+
+			
+
+			if 	((enemybulletRect.y <= 100) ||
+				 (enemybulletRect.y+enemybulletRect.h >= 668)||
+				 (enemybulletRect.x <= 100)||
+				 (enemybulletRect.x+enemybulletRect.w >= 1266))
+			{
+				enemybullet[j].on = 0;
+				
+			}
+			else
+			{
+				if( enemybullet[j].direction == DOWN)
+				{
+					enemybullet[j].y += enemybullet[j].speed;				
+				}
+				if ( enemybullet[j].direction == UP )
+				{
+					enemybullet[j].y -= enemybullet[j].speed;	
+				}
+				if (enemybullet[j].direction == LEFT)
+				{
+					enemybullet[j].x -= enemybullet[j].speed;	
+				}
+				if (enemybullet[j].direction == RIGHT)
+				{
+					enemybullet[j].x += enemybullet[j].speed;enemybullet[j].speed;
+				}
+				if (enemybullet[j].direction == RIGHTUP)
+				{
+					enemybullet[j].y -= enemybullet[j].speed/2;	
+					enemybullet[j].x += enemybullet[j].speed/2;
+				}
+				if (enemybullet[j].direction == RIGHTDOWN)
+				{
+					enemybullet[j].y += enemybullet[j].speed/2;	
+					enemybullet[j].x += enemybullet[j].speed/2;
+				}
+				if (enemybullet[j].direction == LEFTUP)
+				{
+					enemybullet[j].y -= enemybullet[j].speed/2;	
+					enemybullet[j].x -= enemybullet[j].speed/2;
+				}
+				if (enemybullet[j].direction == LEFTDOWN)
+	    		{
+	    			enemybullet[j].y += enemybullet[j].speed/2;	
+					enemybullet[j].x -= enemybullet[j].speed/2;
+	    		}
+	    	}
+
+			
+		}
+		else
+		{
+			enemybullet[j].on = 0;
+			enemybullet[j].x = 0;
+			enemybullet[j].y = 0;
+			enemybullet[j].xinit = 0;
+			enemybullet[j].yinit = 0;
+			enemybullet[j].direction = NONE;
+			enemybullet[j].speed = 0;
+		}
+		
 	}
 }

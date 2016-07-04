@@ -47,7 +47,11 @@ void audioinit()
 	sound.playerdano = Mix_LoadWAV("sounds/playerdano.wav");
 	sound.reload = Mix_LoadWAV("sounds/reload.wav");
 	sound.enemydano = Mix_LoadWAV("sounds/enemydano.wav");
-	
+	sound.menuroll = Mix_LoadWAV("sounds/menuroll.wav");
+	sound.menuenter = Mix_LoadWAV("sounds/menuenter.wav");
+	sound.boom = Mix_LoadWAV("sounds/boom.wav");
+
+
 }
 
 
@@ -1043,7 +1047,7 @@ void init(Gamestate *gamestate)
     gamestate->player.h = 92;
     gamestate->player.x = gamestate->ScreenW/2 - gamestate->player.w/2 +1;
     gamestate->player.y = gamestate->ScreenH/2 - gamestate->player.h/2 ;
-    gamestate->player.life = 500;
+    gamestate->player.life = 510;
     gamestate->player.score = 0;
     gamestate->player.speed = 4;
     gamestate->playerup = 0;
@@ -1055,6 +1059,8 @@ void init(Gamestate *gamestate)
     gamestate->player.frame = 0;
     gamestate->player.name[0] = '\0';
 	gamestate->player.score = 0;
+	gamestate->player.bombbar = 0;
+	gamestate->player.bombpressed = 0;
 
 
     
@@ -1373,6 +1379,7 @@ void init(Gamestate *gamestate)
    		enemymedium[i].frameboom = 0;
 		enemymedium[i].cont = 0;
 		enemymedium[i].dead = 0;
+		enemymedium[i].rof = 40;
 
     }
 
@@ -1471,15 +1478,18 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 						if(SDLK_UP == event->key.keysym.sym) 
 						{
 				            gamestate->menuroll -= 1;
+				            Mix_PlayChannel(-1, sound.menuroll, 0);
 				            return 0;
 						}
 				        if(SDLK_DOWN == event->key.keysym.sym) 
 				        {
 				            gamestate->menuroll += 1;
+				            Mix_PlayChannel(-1, sound.menuroll, 0);
 				            return 0;
 				        }
 				        if(SDLK_RETURN == event->key.keysym.sym) 
 				        {
+				        	Mix_PlayChannel(-1, sound.menuenter, 0);
 				            return 1;
 				        
 				        }
@@ -1501,7 +1511,8 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 						{
 							if(SDLK_LEFT == event->key.keysym.sym) 
 							{
-					            gamestate->musicvolume -= 1;
+								Mix_PlayChannel(-1, sound.menuroll, 0);
+					            gamestate->musicvolume -= 5;
 					            if(gamestate->musicvolume <= 0)
 					            {
 					            	gamestate->musicvolume = 0;
@@ -1511,7 +1522,8 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 							}
 					        if(SDLK_RIGHT == event->key.keysym.sym) 
 					        {
-					            gamestate->musicvolume += 1;
+					        	Mix_PlayChannel(-1, sound.menuroll, 0);
+					            gamestate->musicvolume += 5;
 					            if(gamestate->musicvolume >= 128)
 					            {
 					            	gamestate->musicvolume = 128;
@@ -1525,8 +1537,10 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					{
 						if(event->type == SDL_KEYDOWN)
 						{
+
 							if(SDLK_LEFT == event->key.keysym.sym) 
 							{
+								Mix_PlayChannel(-1, sound.menuroll, 0);
 					            gamestate->soundvolume -= 5;
 					            if(gamestate->soundvolume <= 0)
 					            {
@@ -1537,6 +1551,7 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 							}
 					        if(SDLK_RIGHT == event->key.keysym.sym) 
 					        {
+					        	Mix_PlayChannel(-1, sound.menuroll, 0);
 					            gamestate->soundvolume += 5;
 					            if(gamestate->soundvolume >= 128)
 					            {
@@ -1553,6 +1568,7 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 						{
 							if(SDLK_LEFT == event->key.keysym.sym) 
 							{
+								Mix_PlayChannel(-1, sound.menuroll, 0);
 					            if(gamestate->gamemode == 1)
 					            {
 					            	gamestate->gamemode = 0;
@@ -1567,6 +1583,7 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 							}
 					        if(SDLK_RIGHT == event->key.keysym.sym) 
 					        {
+					        	Mix_PlayChannel(-1, sound.menuroll, 0);
 					            if(gamestate->gamemode == 1)
 					            {
 					            	gamestate->gamemode = 0;
@@ -1584,6 +1601,7 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					{
 						if(SDLK_RETURN == event->key.keysym.sym) 
 				        {
+				        	Mix_PlayChannel(-1, sound.menuenter, 0);
 				        	*state = MENU;
 				            return 1;
 				        
@@ -1594,18 +1612,21 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					{
 						if(SDLK_UP == event->key.keysym.sym) 
 						{
+							Mix_PlayChannel(-1, sound.menuroll, 0);
 				            gamestate->optionsroll -= 1;
 				            
 				            return 0;
 						}
 				        if(SDLK_DOWN == event->key.keysym.sym) 
 				        {
+				        	Mix_PlayChannel(-1, sound.menuroll, 0);
 				            gamestate->optionsroll += 1;
 				            
 				            return 0;
 				        }
 				        if(SDLK_ESCAPE == event->key.keysym.sym) 
 				        {
+				        	Mix_PlayChannel(-1, sound.menuenter, 0);
 				        	*state = MENU;
 				            return 1;
 				        
@@ -1623,9 +1644,17 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					}
 					if(event->type == SDL_KEYDOWN)
 					{
+						if(SDLK_RETURN == event->key.keysym.sym) 
+				        {
+				        	Mix_PlayChannel(-1, sound.menuenter, 0);
+				        	*state = MENU;
+				            return 1;
+				        
+				        }
 						
 				        if(SDLK_ESCAPE == event->key.keysym.sym) 
 				        {
+				        	Mix_PlayChannel(-1, sound.menuenter, 0);
 				            *state = MENU;
 				            return 1;
 				        }
@@ -1641,9 +1670,17 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					}
 					if(event->type == SDL_KEYDOWN)
 					{
+						if(SDLK_RETURN == event->key.keysym.sym) 
+				        {
+				        	Mix_PlayChannel(-1, sound.menuenter, 0);
+				        	*state = MENU;
+				            return 1;
+				        
+				        }
 						
 				        if(SDLK_ESCAPE == event->key.keysym.sym) 
 				        {
+				        	Mix_PlayChannel(-1, sound.menuenter, 0);
 				            *state = MENU;
 				            return 1;
 				        }
@@ -1707,6 +1744,11 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 						        if(SDLK_RIGHT == event->key.keysym.sym) 
 						            gamestate->player.right = 1;
 
+						        if(SDLK_SPACE == event->key.keysym.sym)
+								{
+									gamestate->player.bombpressed = 1;
+								}
+
 
 
 						        if(SDLK_ESCAPE == event->key.keysym.sym)
@@ -1738,10 +1780,15 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 						            gamestate->player.left = 0;
 						        if(SDLK_RIGHT == event->key.keysym.sym) 
 						            gamestate->player.right = 0;
+
+						        if(SDLK_SPACE == event->key.keysym.sym)
+								{
+									gamestate->player.bombpressed = 0;
+								}
 						    }
 						}
 
-						if(gamestate->gamemode == 1)
+						else if(gamestate->gamemode == 1)
 						{	
 							if(event->type == SDL_KEYDOWN)
 							{
@@ -1753,9 +1800,9 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 						            gamestate->playerleft = 1;
 						        else if(SDLK_RIGHT == event->key.keysym.sym) 
 						            gamestate->playerright = 1;
-							        
+						        
 
-						        if(SDLK_a == event->key.keysym.sym) 
+						        if(SDLK_s == event->key.keysym.sym) 
 						           gamestate->player.down = 1; 
 						        if(SDLK_w == event->key.keysym.sym) 
 						            gamestate->player.up = 1;
@@ -1764,45 +1811,53 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 						        if(SDLK_d == event->key.keysym.sym) 
 						            gamestate->player.right = 1;
 
+						        if(SDLK_SPACE == event->key.keysym.sym)
+								{
+									gamestate->player.bombpressed = 1;
+								}
 
-
-						        if(SDLK_ESCAPE == event->key.keysym.sym)
+								if(SDLK_ESCAPE == event->key.keysym.sym)
 								{
 									*state = MENU;
 									return 1;
 								}
-
-									
-						    }
-							        	
+							}
+							
 
 							if(event->type == SDL_KEYUP)
 							{
-							    if(SDLK_DOWN == event->key.keysym.sym) 
-							        gamestate->playerdown = 0; 
-							    else if(SDLK_UP == event->key.keysym.sym) 
-							        gamestate->playerup = 0;
-							    if(SDLK_LEFT == event->key.keysym.sym) 
-							        gamestate->playerleft = 0;
-							    else if(SDLK_RIGHT == event->key.keysym.sym) 
-							        gamestate->playerright = 0;
-							        
+						        if(SDLK_DOWN == event->key.keysym.sym) 
+						            gamestate->playerdown = 0;
+						        else if(SDLK_UP == event->key.keysym.sym) 
+						            gamestate->playerup = 0;
+						        if(SDLK_LEFT == event->key.keysym.sym) 
+						           	gamestate->playerleft = 0;
+						        else if(SDLK_RIGHT == event->key.keysym.sym) 
+						            gamestate->playerright = 0;
 
-							    if(SDLK_a == event->key.keysym.sym) 
-							        gamestate->player.down = 0; 
-							    if(SDLK_w == event->key.keysym.sym) 
-							        gamestate->player.up = 0;
-							    if(SDLK_a == event->key.keysym.sym) 
-							        gamestate->player.left = 0;
-							    if(SDLK_d == event->key.keysym.sym) 
-							        gamestate->player.right = 0;
+						        if(SDLK_s == event->key.keysym.sym) 
+						           gamestate->player.down = 0; 
+						        if(SDLK_w == event->key.keysym.sym) 
+						            gamestate->player.up = 0;
+						        if(SDLK_a == event->key.keysym.sym) 
+						            gamestate->player.left = 0;
+						        if(SDLK_d == event->key.keysym.sym) 
+						            gamestate->player.right = 0;
+
+						        if(SDLK_SPACE == event->key.keysym.sym)
+								{
+									gamestate->player.bombpressed = 0;
+								}									
+						   
 							}
+							
 						}
 
 					    if(gamestate->pause == 0)
 						{
 							if(event->type == SDL_KEYDOWN)
 							{
+								
 								if(SDLK_p == event->key.keysym.sym)
 								{
 									gamestate->pause = 1;
@@ -1811,6 +1866,8 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 									////("pra pausar");
 								}	
 							}
+							
+
 						}
 						else if(gamestate->pause == 1)
 						{

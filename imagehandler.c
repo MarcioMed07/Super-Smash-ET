@@ -18,6 +18,7 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->enemytex = IMG_LoadTexture(renderer, "images/game/enemy.png");
 	texture->enemymediumtex = IMG_LoadTexture(renderer, "images/game/medium.png");
 	texture->enemybosstex = IMG_LoadTexture(renderer, "images/game/boss.png");
+	texture->enemybullettex = IMG_LoadTexture(renderer, "images/game/enemybullet.png");
 	texture->boom = IMG_LoadTexture(renderer, "images/game/boom.png");
 
 	texture->portauptex = IMG_LoadTexture(renderer, "images/game/up.png");
@@ -106,6 +107,15 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 			}
 			
 			
+		}
+	}
+
+	for(j = 0; j< MAXBULLETS; j++)
+	{
+		if(enemybullet[j].on == 1)
+		{
+			SDL_Rect enemybulletRect = {enemybullet[j].x,enemybullet[j].y,15,15};	
+			SDL_RenderCopy(renderer, texture->enemybullettex, NULL, &enemybulletRect);
 		}
 	}
 
@@ -222,13 +232,13 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 					enemy[i].frameboom++;
 				}
 
-						printf("%d\n",enemy[i].frameboom );
+						
 				enemy[i].cont++;	
 										
 			}
 			else
 			{
-				enemyboss[i].dead == 0;
+				enemy[i].dead = 0;
 				enemy[i].frameboom = 0;
 				enemy[i].cont = 0;
 				 enemy[i].w = 0;
@@ -277,22 +287,22 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 			{
 
 
-				SDL_Rect enemymediumboom = {enemymedium[i].x,enemymedium[i].y,enemymedium[i].w,enemymedium[i].h/1.8};
-				SDL_Rect enemymediumboomdraw = {enemymedium[i].frameboom*20,0,20,20};
+				SDL_Rect enemymediumboom = {enemymedium[m].x,enemymedium[m].y,enemymedium[m].w,enemymedium[m].h/1.4};
+				SDL_Rect enemymediumboomdraw = {enemymedium[m].frameboom*20,0,20,20};
 				SDL_RenderCopy(renderer, texture->boom, &enemymediumboomdraw, &enemymediumboom);
 
-				if(enemymedium[i].cont % 8 == 0)
+				if(enemymedium[m].cont % 8 == 0)
 				{
-					enemymedium[i].frameboom++;
+					enemymedium[m].frameboom++;
 				}
 
-						printf("%d\n",enemymedium[i].frameboom );
-				enemymedium[i].cont++;	
+						
+				enemymedium[m].cont++;	
 										
 			}
 			else 
 			{
-				enemyboss[m].dead = 0;
+				enemymedium[m].dead = 0;
 				enemymedium[m].frameboom = 0;
 				enemymedium[m].cont = 0;
 				 enemymedium[m].w = 0;
@@ -344,24 +354,26 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 			{
 
 
-				SDL_Rect enemybossboom = {enemyboss[i].x,enemyboss[i].y,enemyboss[i].w,enemyboss[i].h/1.8};
-				SDL_Rect enemybossboomdraw = {enemyboss[i].frameboom*20,0,20,20};
+				SDL_Rect enemybossboom = {enemyboss[b].x,enemyboss[b].y,enemyboss[b].w,enemyboss[b].h/1.4};
+				SDL_Rect enemybossboomdraw = {enemyboss[b].frameboom*20,0,20,20};
 				SDL_RenderCopy(renderer, texture->boom, &enemybossboomdraw, &enemybossboom);
 
-				if(enemyboss[i].cont % 8 == 0)
+
+
+				if(enemyboss[b].cont % 8 == 0)
 				{
-					enemyboss[i].frameboom++;
+					enemyboss[b].frameboom++;
 				}
 
-						printf("%d\n",enemyboss[i].frameboom );
-				enemyboss[i].cont++;	
+						
+				enemyboss[b].cont++;	
 										
 			}
 			else
 			{
+				enemyboss[b].dead = 0;
 				enemyboss[b].frameboom = 0;
 				enemyboss[b].cont = 0;
-				enemyboss[b].dead = 0;
 				 enemyboss[b].w = 0;
 				 enemyboss[b].h = 0;
 				 enemyboss[b].x = 0;
@@ -481,17 +493,34 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		{
 			if(gamestate->player.arma == 1)
 			{
+				SDL_SetTextureBlendMode(texture->playerw1tex,SDL_BLENDMODE_BLEND);
+				SDL_SetTextureAlphaMod(texture->playerw1tex,gamestate->player.life / 2);
+
+				SDL_RenderCopyEx(renderer, texture->playerw1hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
 				SDL_RenderCopyEx(renderer, texture->playerw1tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
 				
 			}
 			if(gamestate->player.arma == 2)
 			{
+				SDL_SetTextureBlendMode(texture->playerw2tex,SDL_BLENDMODE_BLEND);
+				SDL_SetTextureAlphaMod(texture->playerw2tex,gamestate->player.life / 2);
+
+				SDL_RenderCopyEx(renderer, texture->playerw2hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
 				SDL_RenderCopyEx(renderer, texture->playerw2tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
 				
 			}
 			if(gamestate->player.arma == 3)
 			{
+				SDL_SetTextureBlendMode(texture->playerw3tex,SDL_BLENDMODE_BLEND);
+				SDL_SetTextureAlphaMod(texture->playerw3tex,gamestate->player.life / 2);
+
+				SDL_RenderCopyEx(renderer, texture->playerw3hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
 				SDL_RenderCopyEx(renderer, texture->playerw3tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
 				
 			}
 		}
@@ -501,17 +530,32 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 	{
 		if(gamestate->player.arma == 1)
 		{
-			SDL_RenderCopyEx(renderer, texture->playerw1tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+			SDL_SetTextureBlendMode(texture->playerw1tex,SDL_BLENDMODE_BLEND);
+				SDL_SetTextureAlphaMod(texture->playerw1tex,gamestate->player.life / 2);
+
+				SDL_RenderCopyEx(renderer, texture->playerw1hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
+				SDL_RenderCopyEx(renderer, texture->playerw1tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
 			
 		}
 		if(gamestate->player.arma == 2)
 		{
-			SDL_RenderCopyEx(renderer, texture->playerw2tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+			SDL_SetTextureBlendMode(texture->playerw2tex,SDL_BLENDMODE_BLEND);
+				SDL_SetTextureAlphaMod(texture->playerw2tex,gamestate->player.life / 2);
+
+				SDL_RenderCopyEx(renderer, texture->playerw2hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
+				SDL_RenderCopyEx(renderer, texture->playerw2tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
 			
 		}
 		if(gamestate->player.arma == 3)
 		{
-			SDL_RenderCopyEx(renderer, texture->playerw3tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+			SDL_SetTextureBlendMode(texture->playerw3tex,SDL_BLENDMODE_BLEND);
+				SDL_SetTextureAlphaMod(texture->playerw3tex,gamestate->player.life / 2);
+
+				SDL_RenderCopyEx(renderer, texture->playerw3hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				
+				SDL_RenderCopyEx(renderer, texture->playerw3tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
 			
 		}
 	}
@@ -525,6 +569,28 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 	if(gamestate->player.frame / 6 >= 6)
 	{
 		gamestate->player.frame = 0;	
+	}
+
+
+	if(gamestate->player.bombpressed == 1)
+	{
+		int opacidade = 0;
+		SDL_RenderPresent(renderer);
+		
+		while(opacidade < 170 )
+		{
+			
+			
+			SDL_SetTextureBlendMode(texture->brancotex,SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(texture->brancotex,opacidade);
+			SDL_RenderCopy(renderer, texture->brancotex,NULL, 0);
+			opacidade += 1;	
+			
+			
+			SDL_RenderPresent(renderer);
+			 
+		}
+		SDL_Delay(50);
 	}
 
 	
@@ -544,13 +610,13 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 			SDL_SetTextureAlphaMod(texture->brancotex,opacidade);
 			SDL_RenderCopy(renderer, texture->brancotex,NULL, 0);
 			opacidade += 1;	
-			SDL_Delay(10);
+			SDL_Delay(5);
 			
 			SDL_RenderPresent(renderer);
 			 
 		}
 
-		SDL_Delay(500);
+		SDL_Delay(50);
 
 		opacidade = 0;
 
@@ -579,11 +645,15 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 
 
 
-		SDL_Rect playerlifeRect = {107,45,(gamestate->player.life *0.53) , 15};
-		SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+		SDL_Rect playerlifeRect = {107,45,(gamestate->player.life *0.53) , 20};
+		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 		SDL_RenderFillRect(renderer, &playerlifeRect);
 
-		SDL_Rect lifebarRect = {100,25,250, 40};
+		SDL_Rect bombbarRect = {107,70,(gamestate->player.bombbar ) , 10};
+		SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+		SDL_RenderFillRect(renderer, &bombbarRect);
+
+		SDL_Rect lifebarRect = {100,20,250, 68};
 		SDL_RenderCopy(renderer, texture->lifebar, NULL, &lifebarRect);
 
 		SDL_Rect howtopauseRect = {966,680,300, 32};
@@ -597,6 +667,18 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		texture->scoretela = SDL_CreateTextureFromSurface( renderer, scoretelaSurface );	
 		SDL_FreeSurface(scoretelaSurface);
 		SDL_RenderCopy(renderer, texture->scoretela, NULL, &scoretelaRect);
+
+
+
+		if(gamestate->player.bombbar == 100)
+		{
+			SDL_Rect pressspace = {360,47,170 , 30};			
+			SDL_Surface* pressspacesurface = TTF_RenderText_Solid(font.scoretela,"PRESSIONE SPACE",branco);		
+			texture->pressspace = SDL_CreateTextureFromSurface( renderer, pressspacesurface );	
+			SDL_FreeSurface(pressspacesurface);
+			SDL_RenderCopy(renderer, texture->pressspace, NULL, &pressspace);
+		}
+
 
 		if(gamestate->pause == 1)
 		{

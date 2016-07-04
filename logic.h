@@ -6,6 +6,7 @@
 
 
 Bullet bullet[MAXBULLETS];
+Bullet enemybullet[MAXBULLETS];
 Enemy enemy[MAXENEMIES];
 Enemy enemymedium[MAXENEMIES];
 Enemy enemyhard[MAXENEMIES];
@@ -31,7 +32,11 @@ void logica(Gamestate *);
 
 void createbullet(Gamestate* );
 
+void createenemybullet(Gamestate* );
+
 void updatebullet(Gamestate* );
+
+void updateenemybullet(Gamestate *gamestate);
 
 void createenemy(Gamestate* );
 

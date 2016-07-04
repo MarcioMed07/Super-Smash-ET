@@ -133,6 +133,8 @@ typedef struct _player
 	int arma;
 	int damageplus;
 	int frame;
+	int bombbar;
+	int bombpressed;
 } Player;
 
 typedef struct _parede
@@ -197,6 +199,8 @@ typedef struct _textures
 	SDL_Texture *optionssoundtex;
 	SDL_Texture *optionsgamemodetex;
 	SDL_Texture *boom;
+	SDL_Texture *pressspace;
+	SDL_Texture *enemybullettex;
 
 }Texture;
 
@@ -230,6 +234,7 @@ typedef struct _enemy
 	int frameboom;
 	int cont;
 	int dead;
+	int rof;
 }Enemy;
 
 typedef struct _gamestate
@@ -260,6 +265,7 @@ typedef struct _gamestate
 	int soundvolume;
 	int mute;
 	int enemyframe;
+
 	
 }Gamestate;
 
@@ -285,6 +291,9 @@ typedef struct _sounds
 	Mix_Chunk *playerdano;
 	Mix_Chunk *reload;
 	Mix_Chunk *enemydano;
+	Mix_Chunk *menuroll;
+	Mix_Chunk *menuenter;
+	Mix_Chunk *boom;
 	
 }Sounds;
 

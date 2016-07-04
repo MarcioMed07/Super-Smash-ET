@@ -60,10 +60,18 @@ git add	sounds/menu.wav;
 git add	sounds/reload.wav;
 git add gitadd.sh;
 git add mk.sh;
+git add	images/game/enemybullet.png;
+git add	images/game/playerw1hurt.png;
+git add	images/game/playerw2hurt.png;
+git add	images/game/playerw3hurt.png;
+git add	sounds/boom.wav;
+git add	sounds/menuenter.wav;
+git add	sounds/menuroll.wav;
 
 
 
-git commit -m,--Automatic_Commit;
+
+git commit -m Automatic_Commit;
 git push github master -f -v;
 
 
