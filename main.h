@@ -183,6 +183,7 @@ typedef struct _textures
 	SDL_Texture *scorefinal;
 	SDL_Texture *losetex;
 	SDL_Texture *gameintrotex;
+	SDL_Texture *gameintrotex1;
 	SDL_Texture *wintex;
 	SDL_Texture *instructionstex;
 	SDL_Texture *instructions1tex;
@@ -208,6 +209,7 @@ typedef struct _textures
 	SDL_Texture *pressspace;
 	SDL_Texture *enemybullettex;
 	SDL_Texture *derroteochefe;
+	SDL_Texture *vidachefe;
 
 }Texture;
 

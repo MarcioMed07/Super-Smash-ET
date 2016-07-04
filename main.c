@@ -301,8 +301,8 @@ int main(int argc, char const *argv[])
 
 					int go = 0;
 
-				    int historiaW = 1366;
-				    int historiaH = 1691;
+				    int historia1W = 1366;
+				    int historia1H = 768;
 				    int rollup = 768;
 
 				    SDL_Rect historiaRect;				    
@@ -310,20 +310,20 @@ int main(int argc, char const *argv[])
 					
 
 
-					while(rollup > (historiaH * -1 ) && go == 0)
+					while(rollup > (historia1H * -1 ) && go == 0)
 					{
 						historiaRect.x = 0;
 						historiaRect.y = rollup;
-						historiaRect.w = historiaW;
-						historiaRect.h = historiaH;
+						historiaRect.w = historia1W;
+						historiaRect.h = historia1H;
 
 
-						SDL_RenderCopy(renderer, texture.gameintrotex,NULL, &historiaRect);
+						SDL_RenderCopy(renderer, texture.gameintrotex1,NULL, &historiaRect);
 
 						go = recebeImput(&event,&gamestate,&state);
 
 						rollup -= 1;
-						SDL_Delay(10);
+						SDL_Delay(20);
 
 						SDL_RenderPresent(renderer);
 						SDL_RenderClear(renderer);

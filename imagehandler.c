@@ -50,6 +50,7 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 
 
 	texture->gameintrotex = IMG_LoadTexture(renderer, "images/game/historia.png");
+	texture->gameintrotex1 = IMG_LoadTexture(renderer, "images/game/historiafim.png");
 	texture->instructionstex = IMG_LoadTexture(renderer, "images/game/instructions.png");
 	texture->instructions1tex = IMG_LoadTexture(renderer, "images/game/instructions1.png");
 
@@ -66,6 +67,8 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->creditstex = IMG_LoadTexture(renderer, "images/menu/credits.png");
 	texture->highscoresbgtex = IMG_LoadTexture(renderer, "images/menu/highscores.png");
 	texture->namescreentex = IMG_LoadTexture(renderer, "images/menu/insertname.png");
+
+	texture->vidachefe = IMG_LoadTexture(renderer, "images/game/vidachefe.png");
 
 	texture->derroteochefe = IMG_LoadTexture(renderer, "images/menu/DERROTEOCHEFE.png");
 
@@ -348,10 +351,16 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 			SDL_Rect enemybossRect = {enemyboss[b].x,enemyboss[b].y,enemyboss[b].w,enemyboss[b].h};
 			
 			SDL_RenderCopyEx(renderer, texture->enemybosstex,&currentenemybossframeRect[b],&enemybossRect,enemyboss[b].angulo,NULL,SDL_FLIP_HORIZONTAL);
-			SDL_Rect bosslifeRect = {1266 - enemyboss[b].life,50,enemyboss[b].life , 10};
+			
+
+
+			SDL_Rect bosslifeRect = {1266 - enemyboss[b].life*0.325,40,enemyboss[b].life*0.325 , 25};
 
 			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 			SDL_RenderFillRect(renderer, &bosslifeRect);
+
+			SDL_Rect bosslifebarRect = {1366-400,20,300, 50};
+			SDL_RenderCopy(renderer, texture->vidachefe, NULL, &bosslifebarRect);
 		}
 		else if(enemyboss[b].dead == 1)
 		{

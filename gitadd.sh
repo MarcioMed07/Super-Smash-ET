@@ -75,11 +75,17 @@ git add	sounds/game.wav;
 git add	sounds/intro.wav;
 git add	sounds/morte.wav;
 git add	sounds/vitoria.wav;
+git add	images/game/historiafim.png;
+git add	images/game/vidachefe.png;
+git add	sounds/game.wav;
+git add	sounds/intro.wav;
+git add	sounds/morte.wav;
+git add	sounds/vitoria.wav;
 
 
 
 
 git commit -m Automatic_Commit;
-git push github master -f -v;
+
 
 
