@@ -571,7 +571,7 @@ void updateenemy(Gamestate *gamestate)
 				{
 					gamestate->danocolldown = 100;
 					Mix_PlayChannel(-1, sound.playerdano, 0);
-					gamestate->player.life = gamestate->player.life - 50;
+					gamestate->player.life = gamestate->player.life - 15;
 				}
 				enemy[i].move = 0;
 				
@@ -800,7 +800,7 @@ void updateenemymedium(Gamestate *gamestate)
 				{
 					gamestate->danocolldown = 100;
 					Mix_PlayChannel(-1, sound.playerdano, 0);
-					gamestate->player.life = gamestate->player.life - 50;
+					gamestate->player.life = gamestate->player.life - 30;
 				}
 				enemymedium[i].move = 0;
 				
@@ -1114,7 +1114,7 @@ void updateboss(Gamestate *gamestate)
 				enemyboss[i].life = 0;
 				enemyboss[i].speed = 0;
 				enemyboss[i].move = 0;
-				gamestate->victory = 1;
+				
 			}
 
 		
@@ -1592,8 +1592,8 @@ void createenemybullet(Gamestate *gamestate)
 					
 
 					
-					enemybullet[j].speed = 10;
-					enemymedium[i].rof = 40;
+					enemybullet[j].speed = 5;
+					enemymedium[i].rof = 50;
 					Mix_PlayChannel(-1, sound.arma1, 0);
 					break;
 
@@ -1613,7 +1613,7 @@ void updateenemybullet(Gamestate *gamestate)
 	{
 		if(enemybullet[j].on == 1)
 		{
-			SDL_Rect enemybulletRect = {enemybullet[j].x,enemybullet[j].y,10,10};
+			SDL_Rect enemybulletRect = {enemybullet[j].x,enemybullet[j].y,15,15};
 			SDL_Rect parederect = {	gamestate->parede.x,gamestate->parede.y,
 									gamestate->parede.w,gamestate->parede.h};
 
@@ -1642,7 +1642,7 @@ void updateenemybullet(Gamestate *gamestate)
 				{
 					gamestate->danocolldown = 100;
 					Mix_PlayChannel(-1, sound.playerdano, 0);
-					gamestate->player.life = gamestate->player.life - 10;
+					gamestate->player.life = gamestate->player.life - 15;
 				}
 				
 				

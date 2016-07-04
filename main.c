@@ -253,7 +253,7 @@ int main(int argc, char const *argv[])
 							
 
 						
-						if(gamestate.player.life <= 0)
+						if(gamestate.player.defeat == 1)
 						{						
 							state = GAMEOVERLOSE;
 							running = 0;
@@ -1061,6 +1061,10 @@ void init(Gamestate *gamestate)
 	gamestate->player.score = 0;
 	gamestate->player.bombbar = 0;
 	gamestate->player.bombpressed = 0;
+	gamestate->player.defeat = 0;
+   	gamestate->player.framedead = 0;
+	gamestate->player.cont = 0;
+
 
 
     
@@ -2099,6 +2103,71 @@ int gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Gam
 	opacidade = 0;
 
 	SDL_SetRenderDrawColor(*renderer, 0, 0,0, 255);
+
+
+	
+
+/*
+
+	int rollmap = -1366/2;
+	float zoomW = 1366*1.5;
+	float zoomH = 768;
+
+	SDL_Rect maparollRect = {rollmap,0,zoomW,zoomH};
+	
+	SDL_RenderCopy(*renderer, texture.backgroundtex,NULL, &maparollRect);
+
+	SDL_RenderCopy(*renderer, texture.derroteochefe,NULL, NULL);
+
+	SDL_RenderPresent(*renderer);
+	
+
+	SDL_Delay(100);
+
+
+	SDL_RenderClear(*renderer);
+
+
+
+	while(rollmap < 0)
+	{
+		SDL_Rect maparollRect = {rollmap,0,zoomW,zoomH};
+
+		SDL_RenderCopy(*renderer, texture.derroteochefe,NULL, NULL);
+
+		SDL_RenderCopy(*renderer, texture.backgroundtex,NULL, &maparollRect);
+
+		SDL_RenderPresent(*renderer);
+		SDL_RenderClear(*renderer);
+		rollmap++;
+	}
+
+
+
+
+	while(zoomW < 1366*3 && zoomH < 1536)
+	{
+		SDL_Rect maparollRect = {rollmap,0,zoomW,zoomH};
+
+		SDL_RenderCopy(*renderer, texture.derroteochefe,NULL, NULL);
+
+		SDL_RenderCopy(*renderer, texture.backgroundtex,NULL, &maparollRect);
+
+		SDL_RenderPresent(*renderer);
+		SDL_RenderClear(*renderer);
+		zoomH += 0.5;
+		zoomW += 1.33;
+
+	}
+
+
+
+
+*/
+
+
+
+
 
 
 

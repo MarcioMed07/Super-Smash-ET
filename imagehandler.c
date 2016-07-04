@@ -44,6 +44,7 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->playerw1hurttex = IMG_LoadTexture(renderer, "images/game/playerw1hurt.png");
 	texture->playerw2hurttex = IMG_LoadTexture(renderer, "images/game/playerw2hurt.png");
 	texture->playerw3hurttex = IMG_LoadTexture(renderer, "images/game/playerw3hurt.png");
+	texture->playerw1deadtex = IMG_LoadTexture(renderer, "images/game/playerw1dead.png");
 
 
 	texture->gameintrotex = IMG_LoadTexture(renderer, "images/game/historia.png");
@@ -63,6 +64,8 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->creditstex = IMG_LoadTexture(renderer, "images/menu/credits.png");
 	texture->highscoresbgtex = IMG_LoadTexture(renderer, "images/menu/highscores.png");
 	texture->namescreentex = IMG_LoadTexture(renderer, "images/menu/insertname.png");
+
+	texture->derroteochefe = IMG_LoadTexture(renderer, "images/menu/DERROTEOCHEFE.png");
 
 
 
@@ -350,11 +353,11 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		}
 		else if(enemyboss[b].dead == 1)
 		{
-			if(enemyboss[b].frameboom < 160)
+			if(enemyboss[b].frameboom < 4)
 			{
 
 
-				SDL_Rect enemybossboom = {enemyboss[b].x,enemyboss[b].y,enemyboss[b].w,enemyboss[b].h/1.4};
+				SDL_Rect enemybossboom = {enemyboss[b].x-100,enemyboss[b].y-100,enemyboss[b].w*1.4,enemyboss[b].h};
 				SDL_Rect enemybossboomdraw = {enemyboss[b].frameboom*20,0,20,20};
 				SDL_RenderCopy(renderer, texture->boom, &enemybossboomdraw, &enemybossboom);
 
@@ -378,6 +381,8 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 				 enemyboss[b].h = 0;
 				 enemyboss[b].x = 0;
 				 enemyboss[b].y = 0;
+				 gamestate->victory = 1;
+				 SDL_Delay(15);
 			}
 		}
 	
@@ -463,102 +468,141 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		gamestate->player.angulo = 225;
 	}
 
-	SDL_Rect playerdrawRect[6];
-
 	
 
-	for(a = 0; a < 6; a++)
+	if(gamestate->player.life > 0)
 	{
-		playerdrawRect[a].x = a * gamestate->player.w + 3;
-		playerdrawRect[a].y = 0;
-		playerdrawRect[a].w = gamestate->player.w;
-		playerdrawRect[a].h = gamestate->player.h;
-	}
+		SDL_Rect playerdrawRect[6];
 
-	SDL_Rect currentplayerframeRect;
+		for(a = 0; a < 6; a++)
+		{
+			playerdrawRect[a].x = a * gamestate->player.w + 3;
+			playerdrawRect[a].y = 0;
+			playerdrawRect[a].w = gamestate->player.w;
+			playerdrawRect[a].h = gamestate->player.h;
+		}
 
-	if(gamestate->playerup == 1 || gamestate->playerdown == 1 || gamestate->playerleft == 1 || gamestate->playerright == 1)
-	{
-		currentplayerframeRect = playerdrawRect[ gamestate->player.frame / 6 ];		
-	}
-	else
-	{
-		currentplayerframeRect = playerdrawRect[ 2];
-	}
+		SDL_Rect currentplayerframeRect;
+
+		if(gamestate->playerup == 1 || gamestate->playerdown == 1 || gamestate->playerleft == 1 || gamestate->playerright == 1 )
+		{
+			currentplayerframeRect = playerdrawRect[ gamestate->player.frame / 6 ];		
+		}
+		else
+		{
+			currentplayerframeRect = playerdrawRect[ 2];
+		}
 
 
-	if(gamestate->danocolldown > 0)
-	{
-		if(gamestate->danocolldown % 30 > 15)
+		if(gamestate->danocolldown > 0)
+		{
+			if(gamestate->danocolldown % 30 > 15)
+			{
+				if(gamestate->player.arma == 1)
+				{
+					SDL_SetTextureBlendMode(texture->playerw1tex,SDL_BLENDMODE_BLEND);
+					SDL_SetTextureAlphaMod(texture->playerw1tex,gamestate->player.life / 2);
+
+					SDL_RenderCopyEx(renderer, texture->playerw1hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+					
+					SDL_RenderCopyEx(renderer, texture->playerw1tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+					
+				}
+				if(gamestate->player.arma == 2)
+				{
+					SDL_SetTextureBlendMode(texture->playerw2tex,SDL_BLENDMODE_BLEND);
+					SDL_SetTextureAlphaMod(texture->playerw2tex,gamestate->player.life / 2);
+
+					SDL_RenderCopyEx(renderer, texture->playerw2hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+					
+					SDL_RenderCopyEx(renderer, texture->playerw2tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+					
+					
+				}
+				if(gamestate->player.arma == 3)
+				{
+					SDL_SetTextureBlendMode(texture->playerw3tex,SDL_BLENDMODE_BLEND);
+					SDL_SetTextureAlphaMod(texture->playerw3tex,gamestate->player.life / 2);
+
+					SDL_RenderCopyEx(renderer, texture->playerw3hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+					
+					SDL_RenderCopyEx(renderer, texture->playerw3tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+					
+					
+				}
+			}
+		}
+
+		if(gamestate->danocolldown == 0)
 		{
 			if(gamestate->player.arma == 1)
 			{
 				SDL_SetTextureBlendMode(texture->playerw1tex,SDL_BLENDMODE_BLEND);
-				SDL_SetTextureAlphaMod(texture->playerw1tex,gamestate->player.life / 2);
+					SDL_SetTextureAlphaMod(texture->playerw1tex,gamestate->player.life / 2);
 
-				SDL_RenderCopyEx(renderer, texture->playerw1hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-				
-				SDL_RenderCopyEx(renderer, texture->playerw1tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+					SDL_RenderCopyEx(renderer, texture->playerw1hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+					
+					SDL_RenderCopyEx(renderer, texture->playerw1tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
 				
 			}
 			if(gamestate->player.arma == 2)
 			{
 				SDL_SetTextureBlendMode(texture->playerw2tex,SDL_BLENDMODE_BLEND);
-				SDL_SetTextureAlphaMod(texture->playerw2tex,gamestate->player.life / 2);
+					SDL_SetTextureAlphaMod(texture->playerw2tex,gamestate->player.life / 2);
 
-				SDL_RenderCopyEx(renderer, texture->playerw2hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-				
-				SDL_RenderCopyEx(renderer, texture->playerw2tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-				
+					SDL_RenderCopyEx(renderer, texture->playerw2hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+					
+					SDL_RenderCopyEx(renderer, texture->playerw2tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
 				
 			}
 			if(gamestate->player.arma == 3)
 			{
 				SDL_SetTextureBlendMode(texture->playerw3tex,SDL_BLENDMODE_BLEND);
-				SDL_SetTextureAlphaMod(texture->playerw3tex,gamestate->player.life / 2);
+					SDL_SetTextureAlphaMod(texture->playerw3tex,gamestate->player.life / 2);
 
-				SDL_RenderCopyEx(renderer, texture->playerw3hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-				
-				SDL_RenderCopyEx(renderer, texture->playerw3tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-				
+					SDL_RenderCopyEx(renderer, texture->playerw3hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+					
+					SDL_RenderCopyEx(renderer, texture->playerw3tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
 				
 			}
 		}
 	}
 
-	if(gamestate->danocolldown == 0)
+
+	if(gamestate->player.life <= 0)
 	{
-		if(gamestate->player.arma == 1)
-		{
-			SDL_SetTextureBlendMode(texture->playerw1tex,SDL_BLENDMODE_BLEND);
-				SDL_SetTextureAlphaMod(texture->playerw1tex,gamestate->player.life / 2);
+		if(gamestate->player.framedead < 4)
+			{
 
-				SDL_RenderCopyEx(renderer, texture->playerw1hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-				
-				SDL_RenderCopyEx(renderer, texture->playerw1tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-			
-		}
-		if(gamestate->player.arma == 2)
-		{
-			SDL_SetTextureBlendMode(texture->playerw2tex,SDL_BLENDMODE_BLEND);
-				SDL_SetTextureAlphaMod(texture->playerw2tex,gamestate->player.life / 2);
 
-				SDL_RenderCopyEx(renderer, texture->playerw2hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-				
-				SDL_RenderCopyEx(renderer, texture->playerw2tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-			
-		}
-		if(gamestate->player.arma == 3)
-		{
-			SDL_SetTextureBlendMode(texture->playerw3tex,SDL_BLENDMODE_BLEND);
-				SDL_SetTextureAlphaMod(texture->playerw3tex,gamestate->player.life / 2);
+				SDL_Rect playerdead = {gamestate->player.x,gamestate->player.y,gamestate->player.w,gamestate->player.h};
+				SDL_Rect playerdeaddraw;
+				playerdeaddraw.x = gamestate->player.framedead * gamestate->player.w + 3;
+				playerdeaddraw.y = 0;
+				playerdeaddraw.w = gamestate->player.w;
+				playerdeaddraw.h = gamestate->player.h;
 
-				SDL_RenderCopyEx(renderer, texture->playerw3hurttex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
-				
-				SDL_RenderCopyEx(renderer, texture->playerw3tex,&currentplayerframeRect, &playerRect,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				SDL_RenderCopyEx(renderer, texture->playerw1deadtex,&playerdeaddraw, &playerdead,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+
+				if(gamestate->player.cont % 10 == 0)
+				{
+
+					gamestate->player.framedead++;
+					printf("%d\n",gamestate->player.framedead);
+				}
+
+						
+				gamestate->player.cont++;	
+										
+			}
+			else
+			{
 			
-		}
+				gamestate->player.defeat = 1;
+				
+			}
 	}
+	
 
 	
 

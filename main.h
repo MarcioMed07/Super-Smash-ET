@@ -135,6 +135,9 @@ typedef struct _player
 	int frame;
 	int bombbar;
 	int bombpressed;
+	int defeat;
+	int framedead;
+	int cont;
 } Player;
 
 typedef struct _parede
@@ -157,6 +160,7 @@ typedef struct _textures
 	SDL_Texture *playerw1hurttex;
 	SDL_Texture	*playerw2hurttex;
 	SDL_Texture	*playerw3hurttex;
+	SDL_Texture *playerw1deadtex;
 	SDL_Texture *mousetex;
 	SDL_Texture *bullettex;
 	SDL_Texture *enemytex;
@@ -201,6 +205,7 @@ typedef struct _textures
 	SDL_Texture *boom;
 	SDL_Texture *pressspace;
 	SDL_Texture *enemybullettex;
+	SDL_Texture *derroteochefe;
 
 }Texture;
 
