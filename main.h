@@ -177,9 +177,11 @@ typedef struct _textures
 	SDL_Texture *gameintrotex;
 	SDL_Texture *wintex;
 	SDL_Texture *instructionstex;
+	SDL_Texture *instructions1tex;
 	SDL_Texture *openingtex;
 	SDL_Texture *logotex;
-	SDL_Texture *optionstex;
+	SDL_Texture *options0tex;
+	SDL_Texture *options1tex;
 	SDL_Texture *menutex;
 	SDL_Texture *menurolltex;
 	SDL_Texture *creditstex;
@@ -191,6 +193,10 @@ typedef struct _textures
 	SDL_Texture *howtopausetex;
 	SDL_Texture *insertnametex;
 	SDL_Texture *namescreentex;
+	SDL_Texture *optionsmusictex;
+	SDL_Texture *optionssoundtex;
+	SDL_Texture *optionsgamemodetex;
+	SDL_Texture *boom;
 
 }Texture;
 
@@ -221,6 +227,9 @@ typedef struct _enemy
 	int speed;
 	int move;
 	int angulo;
+	int frameboom;
+	int cont;
+	int dead;
 }Enemy;
 
 typedef struct _gamestate
@@ -245,6 +254,12 @@ typedef struct _gamestate
 	int menuroll;
 	int intro;
 	int danocolldown;
+	int gamemode;
+	int optionsroll;
+	int musicvolume;
+	int soundvolume;
+	int mute;
+	int enemyframe;
 	
 }Gamestate;
 
@@ -311,3 +326,4 @@ void sort(ARRAY *);
 void bubble_sort(RECORDE *, int);
 
 ARRAY array;
+

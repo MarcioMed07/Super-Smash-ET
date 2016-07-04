@@ -18,6 +18,7 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->enemytex = IMG_LoadTexture(renderer, "images/game/enemy.png");
 	texture->enemymediumtex = IMG_LoadTexture(renderer, "images/game/medium.png");
 	texture->enemybosstex = IMG_LoadTexture(renderer, "images/game/boss.png");
+	texture->boom = IMG_LoadTexture(renderer, "images/game/boom.png");
 
 	texture->portauptex = IMG_LoadTexture(renderer, "images/game/up.png");
 	texture->portadowntex = IMG_LoadTexture(renderer, "images/game/down.png");
@@ -46,6 +47,7 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 
 	texture->gameintrotex = IMG_LoadTexture(renderer, "images/game/historia.png");
 	texture->instructionstex = IMG_LoadTexture(renderer, "images/game/instructions.png");
+	texture->instructions1tex = IMG_LoadTexture(renderer, "images/game/instructions1.png");
 
 	texture->wintex = IMG_LoadTexture(renderer, "images/gameover/win.png");
 	texture->losetex = IMG_LoadTexture(renderer, "images/gameover/lose.png");
@@ -53,7 +55,8 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->openingtex = IMG_LoadTexture(renderer, "images/opening/sdlop.png");
 	texture->logotex = IMG_LoadTexture(renderer, "images/opening/logo.png");
 
-	texture->optionstex = IMG_LoadTexture(renderer, "images/menu/options.png");
+	texture->options0tex = IMG_LoadTexture(renderer, "images/menu/options0.png");
+	texture->options1tex = IMG_LoadTexture(renderer, "images/menu/options1.png");
 	texture->menutex = IMG_LoadTexture(renderer, "images/menu/menu.png");
 	texture->menurolltex = IMG_LoadTexture(renderer, "images/menu/roll.png");
 	texture->creditstex = IMG_LoadTexture(renderer, "images/menu/credits.png");
@@ -105,8 +108,6 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 			
 		}
 	}
-	
-	
 
 	int l;
 	for(l = 0; l< MAXPOWERUP; l++)
@@ -168,41 +169,215 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		}
 	}
 
+
+	int a;	
+
+	
+	
+
+	
+
 	int i;
 	for(i = 0; i< MAXENEMIES; i++)
 	{
+		
+		for(a = 0; a < 4; a++)
+		{
+			enemydrawRect[i][a].x = a * enemy[i].w + 3;
+			enemydrawRect[i][a].y = 0;
+			enemydrawRect[i][a].w = enemy[i].w;
+			enemydrawRect[i][a].h = enemy[i].h;
+		}
+
+		
+
+		if(enemy[i].move == 1)
+		{
+			currentenemyframeRect[i] = enemydrawRect[i][ gamestate->enemyframe/8];		
+		}
+		else
+		{
+			currentenemyframeRect[i] = enemydrawRect[i][ 2];
+		}
+
 		if(enemy[i].on == 1)
 		{
+
 			SDL_Rect enemyRect = {enemy[i].x,enemy[i].y,enemy[i].w,enemy[i].h};
-			SDL_Rect enemydrawRect = {0,0,enemy[i].w,enemy[i].h};
-			SDL_RenderCopyEx(renderer, texture->enemytex,&enemydrawRect,&enemyRect,enemy[i].angulo,NULL,SDL_FLIP_HORIZONTAL);
+			
+			SDL_RenderCopyEx(renderer, texture->enemytex,&currentenemyframeRect[i],&enemyRect,enemy[i].angulo,NULL,SDL_FLIP_HORIZONTAL);
 		}
+		else if(enemy[i].dead == 1)
+		{
+			if(enemy[i].frameboom < 4)
+			{
+
+
+				SDL_Rect enemyboom = {enemy[i].x,enemy[i].y,enemy[i].w,enemy[i].h/1.8};
+				SDL_Rect enemyboomdraw = {enemy[i].frameboom*20,0,20,20};
+				SDL_RenderCopy(renderer, texture->boom, &enemyboomdraw, &enemyboom);
+
+				if(enemy[i].cont % 8 == 0)
+				{
+					enemy[i].frameboom++;
+				}
+
+						printf("%d\n",enemy[i].frameboom );
+				enemy[i].cont++;	
+										
+			}
+			else
+			{
+				enemyboss[i].dead == 0;
+				enemy[i].frameboom = 0;
+				enemy[i].cont = 0;
+				 enemy[i].w = 0;
+				 enemy[i].h = 0;
+				 enemy[i].x = 0;
+				 enemy[i].y = 0;
+			}
+		}
+		
 	}
+
+
 
 	int m;
 	for(m = 0; m< MAXENEMIES; m++)
 	{
+		
+		for(a = 0; a < 4; a++)
+		{
+			enemymediumdrawRect[m][a].x = a * enemymedium[m].w + 3;
+			enemymediumdrawRect[m][a].y = 0;
+			enemymediumdrawRect[m][a].w = enemymedium[m].w;
+			enemymediumdrawRect[m][a].h = enemymedium[m].h;
+		}
+
+		
+
+		if(enemymedium[m].move == 1)
+		{
+			currentenemymediumframeRect[m] = enemymediumdrawRect[m][ gamestate->enemyframe/8];		
+		}
+		else
+		{
+			currentenemymediumframeRect[m] = enemymediumdrawRect[m][ 2];
+		}
+
 		if(enemymedium[m].on == 1)
 		{
 			SDL_Rect enemymediumRect = {enemymedium[m].x,enemymedium[m].y,enemymedium[m].w,enemymedium[m].h};
-			SDL_Rect enemymediumdrawRect = {0,0,enemymedium[m].w,enemymedium[m].h};
-			SDL_RenderCopyEx(renderer, texture->enemymediumtex,&enemymediumdrawRect,&enemymediumRect,enemymedium[m].angulo,NULL,SDL_FLIP_HORIZONTAL);
+			
+			SDL_RenderCopyEx(renderer, texture->enemymediumtex,&currentenemymediumframeRect[m],&enemymediumRect,enemymedium[m].angulo,NULL,SDL_FLIP_HORIZONTAL);
 		}
+		else if(enemymedium[m].dead == 1)
+		{
+			if(enemymedium[m].frameboom < 4)
+			{
+
+
+				SDL_Rect enemymediumboom = {enemymedium[i].x,enemymedium[i].y,enemymedium[i].w,enemymedium[i].h/1.8};
+				SDL_Rect enemymediumboomdraw = {enemymedium[i].frameboom*20,0,20,20};
+				SDL_RenderCopy(renderer, texture->boom, &enemymediumboomdraw, &enemymediumboom);
+
+				if(enemymedium[i].cont % 8 == 0)
+				{
+					enemymedium[i].frameboom++;
+				}
+
+						printf("%d\n",enemymedium[i].frameboom );
+				enemymedium[i].cont++;	
+										
+			}
+			else 
+			{
+				enemyboss[m].dead = 0;
+				enemymedium[m].frameboom = 0;
+				enemymedium[m].cont = 0;
+				 enemymedium[m].w = 0;
+				 enemymedium[m].h = 0;
+				 enemymedium[m].x = 0;
+				 enemymedium[m].y = 0;
+			}
+		}
+		
 	}
+
+	
 
 	int b;
 	for(b = 0; b< MAXENEMIES; b++)
 	{
+		for(a = 0; a < 4; a++)
+		{
+			enemybossdrawRect[b][a].x = a * (enemyboss[b].w/2) + 3;
+			enemybossdrawRect[b][a].y = 0;
+			enemybossdrawRect[b][a].w = enemyboss[b].w/2;
+			enemybossdrawRect[b][a].h = enemyboss[b].h/2;
+		}
+
+		
+
+		if(enemyboss[b].move == 1)
+		{
+			currentenemybossframeRect[b] = enemybossdrawRect[b][ gamestate->enemyframe/8];		
+		}
+		else
+		{
+			currentenemybossframeRect[b] = enemybossdrawRect[b][ 2];
+		}
+
 		if(enemyboss[b].on == 1)
 		{
 			SDL_Rect enemybossRect = {enemyboss[b].x,enemyboss[b].y,enemyboss[b].w,enemyboss[b].h};
-			SDL_Rect enemybossdrawRect = {0,0,enemyboss[b].w/2,enemyboss[b].h/2};
-			SDL_RenderCopyEx(renderer, texture->enemybosstex,&enemybossdrawRect,&enemybossRect,enemyboss[b].angulo,NULL,SDL_FLIP_HORIZONTAL);
-
+			
+			SDL_RenderCopyEx(renderer, texture->enemybosstex,&currentenemybossframeRect[b],&enemybossRect,enemyboss[b].angulo,NULL,SDL_FLIP_HORIZONTAL);
 			SDL_Rect bosslifeRect = {1266 - enemyboss[b].life,50,enemyboss[b].life , 10};
+
 			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 			SDL_RenderFillRect(renderer, &bosslifeRect);
 		}
+		else if(enemyboss[b].dead == 1)
+		{
+			if(enemyboss[b].frameboom < 160)
+			{
+
+
+				SDL_Rect enemybossboom = {enemyboss[i].x,enemyboss[i].y,enemyboss[i].w,enemyboss[i].h/1.8};
+				SDL_Rect enemybossboomdraw = {enemyboss[i].frameboom*20,0,20,20};
+				SDL_RenderCopy(renderer, texture->boom, &enemybossboomdraw, &enemybossboom);
+
+				if(enemyboss[i].cont % 8 == 0)
+				{
+					enemyboss[i].frameboom++;
+				}
+
+						printf("%d\n",enemyboss[i].frameboom );
+				enemyboss[i].cont++;	
+										
+			}
+			else
+			{
+				enemyboss[b].frameboom = 0;
+				enemyboss[b].cont = 0;
+				enemyboss[b].dead = 0;
+				 enemyboss[b].w = 0;
+				 enemyboss[b].h = 0;
+				 enemyboss[b].x = 0;
+				 enemyboss[b].y = 0;
+			}
+		}
+	
+		
+	}
+
+
+	gamestate->enemyframe++;
+
+	if(gamestate->enemyframe / 8 >= 4)
+	{
+		gamestate->enemyframe = 0;	
 	}
 
 
@@ -278,8 +453,6 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 
 	SDL_Rect playerdrawRect[6];
 
-	int a;
-
 	
 
 	for(a = 0; a < 6; a++)
@@ -298,7 +471,7 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 	}
 	else
 	{
-		currentplayerframeRect = playerdrawRect[5 ];
+		currentplayerframeRect = playerdrawRect[ 2];
 	}
 
 
@@ -347,7 +520,6 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 
 	gamestate->player.frame++;
 
-	printf("dano cooldown %d\n", gamestate->danocolldown);
 	
 
 	if(gamestate->player.frame / 6 >= 6)
@@ -420,7 +592,7 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 		SDL_Rect scoretelaRect = {110,680,300 , 40};
 		SDL_Color branco = {255,255,255, SDL_ALPHA_OPAQUE};
 		char playerscore[15];
-		sprintf(playerscore, "Pjgkgjjg : %05d", gamestate->player.score);	
+		sprintf(playerscore, "PONTOS : %05d", gamestate->player.score);	
 		SDL_Surface* scoretelaSurface = TTF_RenderText_Solid(font.scoretela,playerscore,branco);		
 		texture->scoretela = SDL_CreateTextureFromSurface( renderer, scoretelaSurface );	
 		SDL_FreeSurface(scoretelaSurface);

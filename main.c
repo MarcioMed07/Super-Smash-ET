@@ -21,7 +21,7 @@ void initwindow(SDL_Window**,SDL_Renderer**);
 
 void salahandler(Gamestate*);
 
-void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Gamestate *gamestate,APPSTATE*state);
+int gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Gamestate *gamestate,APPSTATE*state);
 
 void gameended();
 
@@ -71,7 +71,9 @@ int main(int argc, char const *argv[])
 
 	gamestate.player.name[0] = '\0';
 	gamestate.player.score = 0;
-
+	gamestate.gamemode = 0;
+	gamestate.musicvolume = 128;
+	gamestate.soundvolume = 128;
 	
 
 	int go = 1;
@@ -149,12 +151,29 @@ int main(int argc, char const *argv[])
 				}
 				case OPTIONS:
 				{
+					
 					int decide = 0;
+					gamestate.optionsroll = 0;
+
 					while(decide == 0)
 					{
-						options(&window,&renderer);
-						decide = recebeImput(&event,&gamestate,&state);
+						Mix_VolumeMusic(gamestate.musicvolume);
+						Mix_Volume(-1,gamestate.soundvolume);
+						decide = recebeImput(&event,&gamestate,&state);	
+						options(&renderer,&gamestate);
+						if(gamestate.optionsroll > 3)
+						{
+							gamestate.optionsroll = 0;
+						}
+						if(gamestate.optionsroll < 0)
+						{
+							gamestate.optionsroll = 3;
+						}
+
+						
+						//state = MENU;
 					}
+						
 					break;
 				}
 				case HIGHSCORE:
@@ -184,17 +203,29 @@ int main(int argc, char const *argv[])
 				{
 					Mix_FadeOutMusic(200);
 					gamestate.intro = 1;
-					gameintro(&window,&renderer,&event,&gamestate,&state);
+					
+					
 					Mix_FadeInMusic(music.game, -1, 500);
 					
 
 					init(&gamestate);
 
+
 					int running = 1;
+
+					gamestate.mute = 0;
+					Mix_ResumeMusic();
+					Mix_Resume(-1);
+					
+
+					running = gameintro(&window,&renderer,&event,&gamestate,&state);
 
 					while(running == 1)
 					{
 						//printf("life: %d\n",gamestate.player.life);
+
+						Mix_VolumeMusic(gamestate.musicvolume);
+						Mix_Volume(-1,gamestate.soundvolume);
 						unsigned int inicio = 0,fim = 0;
 
 						inicio = SDL_GetTicks();
@@ -246,7 +277,11 @@ int main(int argc, char const *argv[])
 						
 
 					}
+					gamestate.mute = 0;
+					Mix_Resume(-1);
+					Mix_ResumeMusic();
 					Mix_FadeOutMusic(500);
+					
 
 					
 
@@ -301,9 +336,88 @@ int main(int argc, char const *argv[])
 
 
 					
-					state = HIGHSCORE;	
+					char *nome_arquivo = "recordes.dat";
+
+					if((arquivos.p_arquivo = fopen(nome_arquivo, "r")) != NULL)
+				    {
+				        fread(&array, sizeof(ARRAY), 1, arquivos.p_arquivo);
+				        fclose(arquivos.p_arquivo);
+				    }
+
+					RECORDE rec1;
+
+					SDL_Color branco = {255,255,255, SDL_ALPHA_OPAQUE};
+
+					int done = 0;
+
+					SDL_StartTextInput();
+
+					while(done == 0)
+					{
+						done = recebeImput(&event,&gamestate,&state);
+
+						SDL_RenderCopy(renderer, texture.namescreentex,NULL, 0);
+
+						SDL_Rect scoretelaRect = {(1366/2) - 90,200,180 , 80};						
+						char playerscore[15];
+						sprintf(playerscore, "%05d", gamestate.player.score);	
+						SDL_Surface* scoretelaSurface = TTF_RenderText_Solid(font.scoretela,playerscore,branco);		
+						texture.scoretela = SDL_CreateTextureFromSurface( renderer, scoretelaSurface );	
+						SDL_FreeSurface(scoretelaSurface);
+						SDL_RenderCopy(renderer, texture.scoretela, NULL, &scoretelaRect); 
+						
+
+						SDL_Rect insertnameRect = {(1366/2)-(strlen(gamestate.player.name)*15/2), 400, 15 * strlen(gamestate.player.name)  , 40};													
+						SDL_Surface* insertnameSurface = TTF_RenderText_Solid(font.scoretela,gamestate.player.name,branco);	
+						texture.insertnametex = SDL_CreateTextureFromSurface( renderer, insertnameSurface );	
+						SDL_FreeSurface(insertnameSurface);
+						SDL_RenderCopy(renderer, texture.insertnametex, NULL, &insertnameRect);
+						SDL_RenderPresent(renderer);
+						SDL_RenderClear(renderer); 
+					}
+
+					if(done < 0)
+					{
+						break;
+					}
+
+					SDL_StopTextInput();
+    				//scanf("%s",gamestate.player.name);
+
+				    strcpy(rec1.nome, gamestate.player.name);
+
+				    //rec1.nome[strlen(rec1.nome) - 1] = '\0';
+
+				   	rec1.pontuacao = gamestate.player.score;
+
+				    inserehighscore(&array, rec1);
+
+				    
+
+				     if((arquivos.p_arquivo = fopen(nome_arquivo, "w")) == NULL)
+				    {
+				        perror("fopen:");
+				        return 0;
+				    }
+
+				    fwrite(&array, sizeof(ARRAY), 1, arquivos.p_arquivo);
+				    fclose(arquivos.p_arquivo);
+
+				    
+
+					SDL_Delay(100);
+					SDL_RenderClear(renderer);
+
+					state = HIGHSCORE;
+
+
 					
-					
+
+
+
+
+
+
 					Mix_FadeOutMusic(500);
 
 					break;
@@ -939,6 +1053,9 @@ void init(Gamestate *gamestate)
     gamestate->player.arma = 1;
     gamestate->player.damageplus = 0;
     gamestate->player.frame = 0;
+    gamestate->player.name[0] = '\0';
+	gamestate->player.score = 0;
+
 
     
 
@@ -1234,19 +1351,39 @@ void init(Gamestate *gamestate)
 	gamestate->rob = 60;
 	gamestate->danocolldown = 0;
 
+	gamestate->enemyframe = 0;
+
 
     gamestate->mousex = 600;
     gamestate->mousey = 600;
 
     
     for(i = 0; i < MAXENEMIES; i++)
+    {
    		enemy[i].on = 0;
+   		enemy[i].frameboom = 0;
+		enemy[i].cont = 0;
+		enemy[i].dead = 0;
+
+    }
 
    	for(i = 0; i < MAXENEMIES; i++)
+   	{
    		enemymedium[i].on = 0;
+   		enemymedium[i].frameboom = 0;
+		enemymedium[i].cont = 0;
+		enemymedium[i].dead = 0;
+
+    }
 
    	for(i = 0; i < MAXENEMIES; i++)
+   	{
    		enemyboss[i].on = 0;
+   		enemyboss[i].frameboom = 0;
+		enemyboss[i].cont = 0;
+		enemyboss[i].dead = 0;
+
+    }
 
    	for(i = 0; i < MAXPOWERUP; i++)
    		lifeplus[i].on = 0;
@@ -1350,20 +1487,130 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 					break;					
 				}
 				case OPTIONS:
+
 				{
 					if(event->type == SDL_QUIT)
 					{
 						*state = EXIT;
 						return 1;
 					}
-					if(event->type == SDL_KEYDOWN)
+
+					if(gamestate->optionsroll == 0)
 					{
+						if(event->type == SDL_KEYDOWN)
+						{
+							if(SDLK_LEFT == event->key.keysym.sym) 
+							{
+					            gamestate->musicvolume -= 1;
+					            if(gamestate->musicvolume <= 0)
+					            {
+					            	gamestate->musicvolume = 0;
+					            }
+					            
+					            return 0;
+							}
+					        if(SDLK_RIGHT == event->key.keysym.sym) 
+					        {
+					            gamestate->musicvolume += 1;
+					            if(gamestate->musicvolume >= 128)
+					            {
+					            	gamestate->musicvolume = 128;
+					            }
+					            
+					            return 0;
+					        }
+					    }
+					}
+					if(gamestate->optionsroll == 1)
+					{
+						if(event->type == SDL_KEYDOWN)
+						{
+							if(SDLK_LEFT == event->key.keysym.sym) 
+							{
+					            gamestate->soundvolume -= 5;
+					            if(gamestate->soundvolume <= 0)
+					            {
+					            	gamestate->soundvolume = 0;
+					            }
+					            
+					            return 0;
+							}
+					        if(SDLK_RIGHT == event->key.keysym.sym) 
+					        {
+					            gamestate->soundvolume += 5;
+					            if(gamestate->soundvolume >= 128)
+					            {
+					            	gamestate->soundvolume = 128;
+					            }
+					            
+					            return 0;
+					        }
+					    }
+					}
+					if(gamestate->optionsroll == 2)
+					{
+						if(event->type == SDL_KEYDOWN)
+						{
+							if(SDLK_LEFT == event->key.keysym.sym) 
+							{
+					            if(gamestate->gamemode == 1)
+					            {
+					            	gamestate->gamemode = 0;
+					            }
+					            else if(gamestate->gamemode == 0)
+					            {
+					            	gamestate->gamemode = 1;
+					            }
+					            
+					            
+					            return 0;
+							}
+					        if(SDLK_RIGHT == event->key.keysym.sym) 
+					        {
+					            if(gamestate->gamemode == 1)
+					            {
+					            	gamestate->gamemode = 0;
+					            }
+					            else if(gamestate->gamemode == 0)
+					            {
+					            	gamestate->gamemode = 1;
+					            }
+					            
+					            return 0;
+					        }
+					    }
+					}
+					if(gamestate->optionsroll == 3)
+					{
+						if(SDLK_RETURN == event->key.keysym.sym) 
+				        {
+				        	*state = MENU;
+				            return 1;
+				        
+				        }
+					}
 						
+				    if(event->type == SDL_KEYDOWN)
+					{
+						if(SDLK_UP == event->key.keysym.sym) 
+						{
+				            gamestate->optionsroll -= 1;
+				            
+				            return 0;
+						}
+				        if(SDLK_DOWN == event->key.keysym.sym) 
+				        {
+				            gamestate->optionsroll += 1;
+				            
+				            return 0;
+				        }
 				        if(SDLK_ESCAPE == event->key.keysym.sym) 
 				        {
-				            *state = MENU;
+				        	*state = MENU;
 				            return 1;
+				        
 				        }
+				    
 				    }
 					break;
 				}
@@ -1408,14 +1655,24 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 
 					if(gamestate->intro == 1)
 					{
+						if(event->type == SDL_QUIT)
+						{
+							*state = EXIT;
+							return -1;
+						}
 						if(event->type == SDL_KEYDOWN)
 						{
 							
 
 					        if(SDLK_RETURN == event->key.keysym.sym)
 							{
-								gamestate->intro = 0;
+								//gamestate->intro = 0;
 								return 1;
+							}
+							if(SDLK_ESCAPE == event->key.keysym.sym)
+							{
+								*state = MENU;
+								return -1;
 							}
 						}
 					}
@@ -1427,96 +1684,223 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 							*state = EXIT;
 							return 1;
 						}
-						if(event->type == SDL_KEYDOWN)
+						if(gamestate->gamemode == 0)
 						{
-							if(SDLK_s == event->key.keysym.sym) 
-					           gamestate->playerdown = 1; 
-					        else if(SDLK_w == event->key.keysym.sym) 
-					            gamestate->playerup = 1;
-					        if(SDLK_a == event->key.keysym.sym) 
-					            gamestate->playerleft = 1;
-					        else if(SDLK_d == event->key.keysym.sym) 
-					            gamestate->playerright = 1;
-					        
-
-					        if(SDLK_DOWN == event->key.keysym.sym) 
-					           gamestate->player.down = 1; 
-					        if(SDLK_UP == event->key.keysym.sym) 
-					            gamestate->player.up = 1;
-					        if(SDLK_LEFT == event->key.keysym.sym) 
-					            gamestate->player.left = 1;
-					        if(SDLK_RIGHT == event->key.keysym.sym) 
-					            gamestate->player.right = 1;
-
-
-
-					        if(SDLK_ESCAPE == event->key.keysym.sym)
+							if(event->type == SDL_KEYDOWN)
 							{
-								*state = MENU;
-								return 1;
+								if(SDLK_s == event->key.keysym.sym) 
+						           gamestate->playerdown = 1; 
+						        else if(SDLK_w == event->key.keysym.sym) 
+						            gamestate->playerup = 1;
+						        if(SDLK_a == event->key.keysym.sym) 
+						            gamestate->playerleft = 1;
+						        else if(SDLK_d == event->key.keysym.sym) 
+						            gamestate->playerright = 1;
+						        
+
+						        if(SDLK_DOWN == event->key.keysym.sym) 
+						           gamestate->player.down = 1; 
+						        if(SDLK_UP == event->key.keysym.sym) 
+						            gamestate->player.up = 1;
+						        if(SDLK_LEFT == event->key.keysym.sym) 
+						            gamestate->player.left = 1;
+						        if(SDLK_RIGHT == event->key.keysym.sym) 
+						            gamestate->player.right = 1;
+
+
+
+						        if(SDLK_ESCAPE == event->key.keysym.sym)
+								{
+									*state = MENU;
+									return 1;
+								}
+
+								
+						    }
+						        	
+
+						    if(event->type == SDL_KEYUP)
+							{
+						        if(SDLK_s == event->key.keysym.sym) 
+						            gamestate->playerdown = 0;
+						        else if(SDLK_w == event->key.keysym.sym) 
+						            gamestate->playerup = 0;
+						        if(SDLK_a == event->key.keysym.sym) 
+						           	gamestate->playerleft = 0;
+						        else if(SDLK_d == event->key.keysym.sym) 
+						            gamestate->playerright = 0;
+
+						        if(SDLK_DOWN == event->key.keysym.sym) 
+						           gamestate->player.down = 0; 
+						        if(SDLK_UP == event->key.keysym.sym) 
+						            gamestate->player.up = 0;
+						        if(SDLK_LEFT == event->key.keysym.sym) 
+						            gamestate->player.left = 0;
+						        if(SDLK_RIGHT == event->key.keysym.sym) 
+						            gamestate->player.right = 0;
+						    }
+						}
+
+						if(gamestate->gamemode == 1)
+						{	
+							if(event->type == SDL_KEYDOWN)
+							{
+								if(SDLK_DOWN == event->key.keysym.sym) 
+						           gamestate->playerdown = 1; 
+						        else if(SDLK_UP == event->key.keysym.sym) 
+						            gamestate->playerup = 1;
+						        if(SDLK_LEFT == event->key.keysym.sym) 
+						            gamestate->playerleft = 1;
+						        else if(SDLK_RIGHT == event->key.keysym.sym) 
+						            gamestate->playerright = 1;
+							        
+
+						        if(SDLK_a == event->key.keysym.sym) 
+						           gamestate->player.down = 1; 
+						        if(SDLK_w == event->key.keysym.sym) 
+						            gamestate->player.up = 1;
+						        if(SDLK_a == event->key.keysym.sym) 
+						            gamestate->player.left = 1;
+						        if(SDLK_d == event->key.keysym.sym) 
+						            gamestate->player.right = 1;
+
+
+
+						        if(SDLK_ESCAPE == event->key.keysym.sym)
+								{
+									*state = MENU;
+									return 1;
+								}
+
+									
+						    }
+							        	
+
+							if(event->type == SDL_KEYUP)
+							{
+							    if(SDLK_DOWN == event->key.keysym.sym) 
+							        gamestate->playerdown = 0; 
+							    else if(SDLK_UP == event->key.keysym.sym) 
+							        gamestate->playerup = 0;
+							    if(SDLK_LEFT == event->key.keysym.sym) 
+							        gamestate->playerleft = 0;
+							    else if(SDLK_RIGHT == event->key.keysym.sym) 
+							        gamestate->playerright = 0;
+							        
+
+							    if(SDLK_a == event->key.keysym.sym) 
+							        gamestate->player.down = 0; 
+							    if(SDLK_w == event->key.keysym.sym) 
+							        gamestate->player.up = 0;
+							    if(SDLK_a == event->key.keysym.sym) 
+							        gamestate->player.left = 0;
+							    if(SDLK_d == event->key.keysym.sym) 
+							        gamestate->player.right = 0;
 							}
+						}
 
-							
-					    }
-					        	
-
-					    if(event->type == SDL_KEYUP)
+					    if(gamestate->pause == 0)
 						{
-					        if(SDLK_s == event->key.keysym.sym) 
-					            gamestate->playerdown = 0;
-					        else if(SDLK_w == event->key.keysym.sym) 
-					            gamestate->playerup = 0;
-					        if(SDLK_a == event->key.keysym.sym) 
-					           	gamestate->playerleft = 0;
-					        else if(SDLK_d == event->key.keysym.sym) 
-					            gamestate->playerright = 0;
-
-					        if(SDLK_DOWN == event->key.keysym.sym) 
-					           gamestate->player.down = 0; 
-					        if(SDLK_UP == event->key.keysym.sym) 
-					            gamestate->player.up = 0;
-					        if(SDLK_LEFT == event->key.keysym.sym) 
-					            gamestate->player.left = 0;
-					        if(SDLK_RIGHT == event->key.keysym.sym) 
-					            gamestate->player.right = 0;
-
-					        if(gamestate->pause == 0)
+							if(event->type == SDL_KEYDOWN)
 							{
 								if(SDLK_p == event->key.keysym.sym)
 								{
 									gamestate->pause = 1;
+									SDL_Delay(50);
+									
 									////("pra pausar");
 								}	
 							}
-							else if(gamestate->pause == 1)
+						}
+						else if(gamestate->pause == 1)
+						{
+							if(event->type == SDL_KEYDOWN)
 							{
 								if(SDLK_p == event->key.keysym.sym)
 								{
 									gamestate->pause = 0;
+									SDL_Delay(50);
+									
 									////("pra retornar");
 								}
-								if(SDLK_r == event->key.keysym.sym)
+								else if(SDLK_r == event->key.keysym.sym)
 								{
 									*state = NEWGAME;
 									return 1;
-								}	
+								}
+								else if(SDLK_m == event->key.keysym.sym)
+								{	
+									int volaux;
+
+									if(gamestate->mute == 0)
+									{
+										volaux = gamestate->soundvolume;
+										gamestate->mute = 1;
+										
+										gamestate->soundvolume = 0;
+										printf("volaux %d\n",volaux );
+										Mix_PauseMusic();
+									}
+									else if(gamestate->mute == 1)
+									{
+
+										gamestate->soundvolume = 128;
+										gamestate->mute = 0;
+										printf("volume %d\n",gamestate->soundvolume );
+										Mix_Resume(-1);
+										Mix_ResumeMusic();
+
+									}
+
+								}
 							}
-					    }
+								
+						}	
 					}
+
+					    		
+					
 					break;
 				}
 				case GAMEOVERWIN:
 				{
-					switch (event->type) 
-					{
-						case SDL_QUIT:					
-							*state = EXIT;				
-							break;
-						
-					}
-				}
-					break;
+						switch (event->type) 
+						{
+							case SDL_QUIT:	
+								
+								*state = EXIT;	
+								return -1;
 
+								break;
+
+							case SDL_TEXTINPUT :
+
+								if(strlen(gamestate->player.name) <= 11)
+								{
+									strcat(gamestate->player.name, event->text.text);
+								}
+								
+								
+								return 0;
+								break;
+
+							case SDL_KEYDOWN :
+								if(SDLK_BACKSPACE == event->key.keysym.sym) 
+						        {
+						        	gamestate->player.name[strlen(gamestate->player.name) - 1] = '\0';
+						            return 0;
+						      	}
+
+								if(SDLK_RETURN == event->key.keysym.sym) 
+						        {
+						        	
+						            return 1;
+						      	}
+						        break;						
+						}
+					
+					break;
+				}
 				case GAMEOVERLOSE:
 				{
 						switch (event->type) 
@@ -1608,7 +1992,7 @@ void initwindow(SDL_Window **window,SDL_Renderer **renderer)
 }
 
 
-void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Gamestate *gamestate,APPSTATE*state)
+int gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Gamestate *gamestate,APPSTATE*state)
 {
 	int opacidade = 0;
 
@@ -1616,7 +2000,7 @@ void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Ga
 
     int historiaW = 1366;
     int historiaH = 1691;
-    int rollup = 768;
+    int rollup = 600;
 
     SDL_Rect historiaRect;
 
@@ -1636,57 +2020,153 @@ void gameintro(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Ga
 		go = recebeImput(event,gamestate,state);
 
 		rollup -= 1;
-		SDL_Delay(20);
+		SDL_Delay(15);
 
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);
 
 		
 	}
+	
 
-	go = 0;
+	if(go >= 0)
+	{
+		go = 0;
+	}
+	else
+	{
+		return 0;
+	}
+
+	
 	opacidade = 0;
 
 	SDL_SetRenderDrawColor(*renderer, 0, 0,0, 255);
 
-	while(opacidade < 255 && go == 0)
+
+
+	if(gamestate->gamemode == 1)
 	{
-		
-		SDL_SetTextureBlendMode(texture.instructionstex,SDL_BLENDMODE_BLEND);
-		SDL_SetTextureAlphaMod(texture.instructionstex,opacidade);
-		SDL_RenderCopy(*renderer, texture.instructionstex,NULL, 0);
-		//SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
+		while(opacidade < 255 && go == 0)
+		{
+			
+			SDL_SetTextureBlendMode(texture.instructions1tex,SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(texture.instructions1tex,opacidade);
+			SDL_RenderCopy(*renderer, texture.instructions1tex,NULL, 0);
 
-		go = recebeImput(event,gamestate,state);	
+			SDL_SetRenderDrawColor(*renderer, 0, 0,0, 255);
+
+			go = recebeImput(event,gamestate,state);	
 
 
-		opacidade += 10;	
-		SDL_RenderPresent(*renderer);
-		SDL_RenderClear(*renderer);  
+			opacidade += 1;	
+			SDL_RenderPresent(*renderer);
+			SDL_RenderClear(*renderer);  
+		}
+
+		if(go == 1)
+		{
+			gamestate->intro = 0;
+			return 1;
+		}
+		else if(go == -1)
+		{
+			return 0;
+		}
+
+		if(go == 0)
+		{	
+			SDL_Delay(2000);
+			opacidade = 255;
+		}
+
+
+		while(opacidade > 0 && go ==0)
+		{
+			
+			
+			SDL_SetTextureBlendMode(texture.instructions1tex,SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(texture.instructions1tex,opacidade);
+			SDL_RenderCopy(*renderer, texture.instructions1tex,NULL, 0);
+			SDL_SetRenderDrawColor(*renderer, 0, 0,0, 255);
+			
+
+			go = recebeImput(event,gamestate,state);
+			opacidade -= 1;
+			SDL_RenderPresent(*renderer);
+			SDL_RenderClear(*renderer);  
+		}
 	}
 
-	if(go == 0)
-	{	
-		SDL_Delay(2000);
-		opacidade = 255;
-	}
 
-	while(opacidade > 0 && go ==0)
+
+
+	if(gamestate->gamemode == 0)
 	{
-		
-		
-		SDL_SetTextureBlendMode(texture.instructionstex,SDL_BLENDMODE_BLEND);
-		SDL_SetTextureAlphaMod(texture.instructionstex,opacidade);
-		SDL_RenderCopy(*renderer, texture.instructionstex,NULL, 0);
-		//SDL_SetRenderDrawColor(*renderer, 255, 255,255, 255);
-		
+		while(opacidade < 255 && go == 0)
+		{
+			
+			SDL_SetTextureBlendMode(texture.instructionstex,SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(texture.instructionstex,opacidade);
+			SDL_RenderCopy(*renderer, texture.instructionstex,NULL, 0);
 
-		go = recebeImput(event,gamestate,state);
-		opacidade -= 10;
-		SDL_RenderPresent(*renderer);
-		SDL_RenderClear(*renderer);  
+			SDL_SetRenderDrawColor(*renderer, 0, 0,0, 255);
+
+			go = recebeImput(event,gamestate,state);	
+
+
+			opacidade += 1;	
+			SDL_RenderPresent(*renderer);
+			SDL_RenderClear(*renderer);  
+		}
+
+		if(go == 1)
+		{
+			gamestate->intro = 0;
+			return 1;
+		}
+		else if(go == -1)
+		{
+			return 0;
+		}
+
+		if(go == 0)
+		{	
+			SDL_Delay(2000);
+			opacidade = 255;
+		}
+
+
+		while(opacidade > 0 && go ==0)
+		{
+			
+			
+			SDL_SetTextureBlendMode(texture.instructionstex,SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(texture.instructionstex,opacidade);
+			SDL_RenderCopy(*renderer, texture.instructionstex,NULL, 0);
+			SDL_SetRenderDrawColor(*renderer, 0, 0,0, 255);
+			
+
+			go = recebeImput(event,gamestate,state);
+			opacidade -= 1;
+			SDL_RenderPresent(*renderer);
+			SDL_RenderClear(*renderer);  
+		}
 	}
+
 	gamestate->intro = 0;
+
+	if(go == 1)
+	{
+		gamestate->intro = 0;
+		return 1;
+	}
+	else if(go == -1)
+	{
+		return 0;
+	}
+
+	return 1;
 
 }
 

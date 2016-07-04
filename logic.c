@@ -624,7 +624,12 @@ void updateenemy(Gamestate *gamestate)
 				{
 					gamestate->player.score += 10;					
 				}
+
+				
+
+
 				enemy[i].on = 0;
+				enemy[i].dead = 1;
 				// enemy[i].w = 0;
 				// enemy[i].h = 0;
 				// enemy[i].x = 0;
@@ -842,6 +847,7 @@ void updateenemymedium(Gamestate *gamestate)
 					gamestate->player.score += 10;
 				}
 				enemymedium[i].on = 0;
+				enemymedium[i].dead = 1;
 				// enemymedium[i].w = 0;
 				// enemymedium[i].h = 0;
 				// enemymedium[i].x = 0;
@@ -943,7 +949,9 @@ void updateboss(Gamestate *gamestate)
 			{
 				if (gamestate->player.x > enemyboss[i].x && !(gamestate->player.y > enemyboss[i].y) && !(gamestate->player.y < enemyboss[i].y))
 				{
+
 					enemyboss[i].x += enemyboss[i].speed;
+
 					enemyboss[i].angulo = 90;
 					//enemy[i].move = 0;
 					break;
@@ -959,7 +967,10 @@ void updateboss(Gamestate *gamestate)
 			    
 			    if (gamestate->player.y > enemyboss[i].y && !(gamestate->player.x < enemyboss[i].x) && !(gamestate->player.x > enemyboss[i].x))
 			    {
-					enemyboss[i].y += enemyboss[i].speed;
+			    	if((gamestate->player.y + gamestate->player.h ) >  (enemyboss[i].h + enemyboss[i].y))
+			    	{
+						enemyboss[i].y += enemyboss[i].speed;
+					}
 					enemyboss[i].angulo = 180;
 					//enemy[i].move = 0;
 					break;
@@ -971,11 +982,21 @@ void updateboss(Gamestate *gamestate)
 			    	//enemy[i].move = 0;
 			    	break;
 			    }
-			    if(gamestate->player.x > enemyboss[i].x && gamestate->player.y > enemyboss[i].y)
+			    if(gamestate->player.x > enemyboss[i].x && gamestate->player.y > enemyboss[i].y )
 			    {
 			    	enemyboss[i].x += enemyboss[i].speed ;
-			    	enemyboss[i].y += enemyboss[i].speed ;
-			    	enemyboss[i].angulo = 135;
+
+			    	if((gamestate->player.y + gamestate->player.h ) >  (enemyboss[i].h + enemyboss[i].y))
+			    	{
+						enemyboss[i].y += enemyboss[i].speed;
+						enemyboss[i].angulo = 135;
+					}
+					else
+					{
+						enemyboss[i].angulo = 90;					
+					}
+			    	
+			    	
 			    	//enemy[i].move = 0;
 			    	break;
 			    }
@@ -987,11 +1008,21 @@ void updateboss(Gamestate *gamestate)
 			    	//enemy[i].move = 0;
 			    	break;
 			    }
-			    if(gamestate->player.x < enemyboss[i].x && gamestate->player.y > enemyboss[i].y)
+			    if(gamestate->player.x < enemyboss[i].x && gamestate->player.y > enemyboss[i].y )
 			    {
 			    	enemyboss[i].x -= enemyboss[i].speed ;
-			    	enemyboss[i].y += enemyboss[i].speed ;
-			    	enemyboss[i].angulo = 225;
+			    	
+			    	if((gamestate->player.y + gamestate->player.h ) >  (enemyboss[i].h + enemyboss[i].y))
+			    	{
+						enemyboss[i].y += enemyboss[i].speed;
+						enemyboss[i].angulo = 225;
+					}
+					else
+					{
+						enemyboss[i].angulo = 270;					
+					}
+
+			    	
 			    	//enemy[i].move = 0;
 			    	break;
 			    }
@@ -1010,6 +1041,7 @@ void updateboss(Gamestate *gamestate)
 			{	
 				gamestate->player.score += 500;
 				enemyboss[i].on = 0;
+				enemyboss[i].dead = 1;
 				// enemymedium[i].w = 0;
 				// enemymedium[i].h = 0;
 				// enemymedium[i].x = 0;

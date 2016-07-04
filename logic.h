@@ -11,6 +11,15 @@ Enemy enemymedium[MAXENEMIES];
 Enemy enemyhard[MAXENEMIES];
 Enemy enemyboss[MAXENEMIES];
 
+SDL_Rect enemydrawRect[MAXENEMIES][4];
+SDL_Rect currentenemyframeRect[MAXENEMIES];
+
+SDL_Rect currentenemymediumframeRect[MAXENEMIES];
+SDL_Rect enemymediumdrawRect[MAXENEMIES][ 4 ];
+
+SDL_Rect currentenemybossframeRect[MAXENEMIES];
+SDL_Rect enemybossdrawRect[MAXENEMIES][ 4 ];
+
 Lifeplus lifeplus[MAXPOWERUP];
 Speedplus speedplus[MAXPOWERUP];
 Damageplus damageplus[MAXPOWERUP];
