@@ -161,6 +161,8 @@ typedef struct _textures
 	SDL_Texture	*playerw2hurttex;
 	SDL_Texture	*playerw3hurttex;
 	SDL_Texture *playerw1deadtex;
+	SDL_Texture *playerw2deadtex;
+	SDL_Texture *playerw3deadtex;
 	SDL_Texture *mousetex;
 	SDL_Texture *bullettex;
 	SDL_Texture *enemytex;

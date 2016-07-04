@@ -45,6 +45,8 @@ void loadimages(SDL_Renderer* renderer,Texture *texture)
 	texture->playerw2hurttex = IMG_LoadTexture(renderer, "images/game/playerw2hurt.png");
 	texture->playerw3hurttex = IMG_LoadTexture(renderer, "images/game/playerw3hurt.png");
 	texture->playerw1deadtex = IMG_LoadTexture(renderer, "images/game/playerw1dead.png");
+	texture->playerw2deadtex = IMG_LoadTexture(renderer, "images/game/playerw2dead.png");
+	texture->playerw3deadtex = IMG_LoadTexture(renderer, "images/game/playerw3dead.png");
 
 
 	texture->gameintrotex = IMG_LoadTexture(renderer, "images/game/historia.png");
@@ -582,7 +584,23 @@ void desenha(SDL_Renderer* renderer, Gamestate *gamestate,Texture *texture)
 				playerdeaddraw.w = gamestate->player.w;
 				playerdeaddraw.h = gamestate->player.h;
 
-				SDL_RenderCopyEx(renderer, texture->playerw1deadtex,&playerdeaddraw, &playerdead,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				if(gamestate->player.arma == 1)
+				{
+
+					SDL_RenderCopyEx(renderer, texture->playerw1deadtex,&playerdeaddraw, &playerdead,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				}
+				if(gamestate->player.arma == 2)
+				{
+
+					SDL_RenderCopyEx(renderer, texture->playerw2deadtex,&playerdeaddraw, &playerdead,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				}
+				if(gamestate->player.arma == 3)
+				{
+
+					SDL_RenderCopyEx(renderer, texture->playerw3deadtex,&playerdeaddraw, &playerdead,gamestate->player.angulo,NULL,SDL_FLIP_HORIZONTAL);
+				}
+
+
 
 				if(gamestate->player.cont % 10 == 0)
 				{

@@ -67,6 +67,7 @@ git add	images/game/playerw3hurt.png;
 git add	sounds/boom.wav;
 git add	sounds/menuenter.wav;
 git add	sounds/menuroll.wav;
+git add INSTRUCOES.txt;
 
 
 
