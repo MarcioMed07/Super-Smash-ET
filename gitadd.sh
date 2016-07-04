@@ -68,6 +68,9 @@ git add	sounds/boom.wav;
 git add	sounds/menuenter.wav;
 git add	sounds/menuroll.wav;
 git add INSTRUCOES.txt;
+git add	images/game/playerw1dead.png;
+git add	images/game/playerw2dead.png;
+git add	images/game/playerw3dead.png;
 
 
 
