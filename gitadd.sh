@@ -71,6 +71,10 @@ git add INSTRUCOES.txt;
 git add	images/game/playerw1dead.png;
 git add	images/game/playerw2dead.png;
 git add	images/game/playerw3dead.png;
+git add	sounds/game.wav;
+git add	sounds/intro.wav;
+git add	sounds/morte.wav;
+git add	sounds/vitoria.wav;
 
 
 

@@ -35,9 +35,10 @@ void audioinit()
 
 	music.menu = Mix_LoadMUS("sounds/menu.wav");
 	music.boss = Mix_LoadMUS("sounds/boss.wav");
-	music.game = Mix_LoadMUS("sounds/game.mp3");
-	music.lose = Mix_LoadMUS("sounds/lose.mp3");
-	music.win = Mix_LoadMUS("sounds/win.mp3");
+	music.game = Mix_LoadMUS("sounds/game.wav");
+	music.lose = Mix_LoadMUS("sounds/morte.wav");
+	music.win = Mix_LoadMUS("sounds/vitoria.wav");
+	music.intro = Mix_LoadMUS("sounds/intro.wav");
 	sound.arma1 = Mix_LoadWAV("sounds/arma1.wav");
 	sound.arma2 = Mix_LoadWAV("sounds/arma2.wav");
 	sound.arma3 = Mix_LoadWAV("sounds/arma3.wav");
@@ -99,6 +100,7 @@ int main(int argc, char const *argv[])
 			{
 				case OPENING:
 				{
+
 
 					opening(&window,&renderer,&event,&gamestate,&state);
 
@@ -293,7 +295,7 @@ int main(int argc, char const *argv[])
 				}
 				case GAMEOVERWIN:
 				{	
-					Mix_FadeInMusic(music.win, -1, 2000);
+					Mix_FadeInMusic(music.win, 1, 200);
 
 					int opacidade = 0;				
 
@@ -428,7 +430,7 @@ int main(int argc, char const *argv[])
 				}
 				case GAMEOVERLOSE:
 				{
-					Mix_FadeInMusic(music.lose, -1, 200);
+					Mix_FadeInMusic(music.lose, 0, 200);
 
 					int decide = 0;
 
@@ -548,7 +550,7 @@ int main(int argc, char const *argv[])
 
 					if(renderer != NULL)
 					{
-						puts("erro ao destruir");
+						
 						SDL_GetError();
 					}
 
@@ -1899,7 +1901,7 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 										gamestate->mute = 1;
 										
 										gamestate->soundvolume = 0;
-										printf("volaux %d\n",volaux );
+										
 										Mix_PauseMusic();
 									}
 									else if(gamestate->mute == 1)
@@ -1907,7 +1909,7 @@ int recebeImput(SDL_Event *event, Gamestate *gamestate,APPSTATE* state)
 
 										gamestate->soundvolume = 128;
 										gamestate->mute = 0;
-										printf("volume %d\n",gamestate->soundvolume );
+										
 										Mix_Resume(-1);
 										Mix_ResumeMusic();
 

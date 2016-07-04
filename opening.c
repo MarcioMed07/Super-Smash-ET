@@ -30,7 +30,7 @@ void opening(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Game
 
 
 		opacidade += 1;	
-		SDL_Delay(8);
+		SDL_Delay(4);
 
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);  
@@ -40,7 +40,10 @@ void opening(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Game
 	{	
 		SDL_Delay(1000);
 		opacidade = 255;
+
 	}
+
+
 
 	while(opacidade > 0 && go ==0)
 	{
@@ -57,11 +60,14 @@ void opening(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Game
 		go = recebeImput(event,gamestate,state);
 
 		opacidade -= 1;
-		SDL_Delay(8);
+		SDL_Delay(4);
 
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);  
 	}
+
+	Mix_FadeInMusic(music.intro, 0, 0);
+
 
 	while(opacidade < 255 && go ==0)
 	{
@@ -78,7 +84,7 @@ void opening(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Game
 
 
 		opacidade += 1;	
-		SDL_Delay(8);
+		SDL_Delay(4);
 
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);  
@@ -103,10 +109,12 @@ void opening(SDL_Window** window, SDL_Renderer**renderer,SDL_Event * event, Game
 
 
 		opacidade -= 1;
-		SDL_Delay(8);
+		SDL_Delay(4);
 
 		SDL_RenderPresent(*renderer);
 		SDL_RenderClear(*renderer);  
 	}
+
+	Mix_FadeOutMusic(0);
 
 }

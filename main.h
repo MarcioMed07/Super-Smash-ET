@@ -283,6 +283,7 @@ typedef struct _musics
 	Mix_Music *game;
 	Mix_Music *lose;
 	Mix_Music *win;
+	Mix_Music *intro;
 }Musica;
 
 
